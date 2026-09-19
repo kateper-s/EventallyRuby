@@ -1,0 +1,41 @@
+<nav class="bg-white shadow-sm border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <%= link_to root_path, class: "flex items-center space-x-2" do %>
+          <span class="text-xl font-bold text-gray-900">Eventally</span>
+        <% end %>
+
+        <div class="ml-10 hidden md:flex items-baseline space-x-4">
+          <%= link_to "События", root_path,
+              class: "text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <% if user_signed_in? %>
+          <% if current_user.organizer? %>
+            <%= link_to "Мои события", "#",
+                class: "hidden md:inline text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
+          <% else %>
+            <%= link_to "Мои билеты", "#",
+                class: "hidden md:inline text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
+          <% end %>
+
+          <span class="text-sm text-gray-700 hidden sm:inline">
+            <%= current_user.name %>
+          </span>
+
+          <%= button_to "Выйти", destroy_user_session_path,
+              method: :delete,
+              class: "text-sm text-gray-600 hover:text-red-600 cursor-pointer" %>
+        <% else %>
+          <%= link_to "Войти", new_user_session_path,
+              class: "text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
+          <%= link_to "Регистрация", new_user_registration_path,
+              class: "bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,19 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
   <head>
-    <title>EventallyRuby</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Eventally — управление мероприятиями</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="bg-gray-50 min-h-screen flex flex-col">
+    <%= render "shared/navbar" %>
+
+    <% if notice.present? %>
+      <div class="max-w-7xl mx-auto mt-4 px-4 w-full">
+        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+          <%= notice %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if alert.present? %>
+      <div class="max-w-7xl mx-auto mt-4 px-4 w-full">
+        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+          <%= alert %>
+        </div>
+      </div>
+    <% end %>
+
+    <main class="flex-1">
       <%= yield %>
     </main>
+
+    <%= render "shared/footer" %>
   </body>
 </html>

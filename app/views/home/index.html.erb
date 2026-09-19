@@ -1,0 +1,32 @@
+<div class="max-w-7xl mx-auto px-4 py-20">
+  <div class="text-center">
+    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+       Eventally
+    </h1>
+    <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+      Платформа для организации мероприятий: создавайте события,
+      продавайте билеты и управляйте гостями в одном месте.
+    </p>
+
+    <% unless user_signed_in? %>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <%= link_to "Создать событие", new_user_registration_path,
+            class: "inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 font-medium" %>
+        <%= link_to "Найти событие", new_user_session_path,
+            class: "inline-block border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 font-medium" %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-lg shadow-sm p-8 max-w-md mx-auto">
+        <p class="text-lg text-gray-700 mb-2">
+          Привет, <strong><%= current_user.name %></strong>!
+        </p>
+        <p class="text-sm text-gray-500">
+          Ваша роль:
+          <span class="inline-block bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-medium">
+            <%= current_user.organizer? ? "Организатор" : "Посетитель" %>
+          </span>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
