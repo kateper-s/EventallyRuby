@@ -1,32 +1,64 @@
-<div class="max-w-7xl mx-auto px-4 py-20">
-  <div class="text-center">
-    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-       Eventally
-    </h1>
-    <p class="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-      Платформа для организации мероприятий: создавайте события,
-      продавайте билеты и управляйте гостями в одном месте.
-    </p>
+<%# Hero %>
+<section class="bg-surface border-b border-border">
+  <div class="max-w-6xl mx-auto px-4 py-20 sm:py-28">
+    <div class="max-w-2xl">
+      <span class="inline-block py-1 text-xs font-medium text-brand bg-brand-muted rounded-full mb-6">
+        Платформа мероприятий
+      </span>
 
-    <% unless user_signed_in? %>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <%= link_to "Создать событие", new_user_registration_path,
-            class: "inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 font-medium" %>
-        <%= link_to "Найти событие", new_user_session_path,
-            class: "inline-block border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 font-medium" %>
-      </div>
-    <% else %>
-      <div class="bg-white rounded-lg shadow-sm p-8 max-w-md mx-auto">
-        <p class="text-lg text-gray-700 mb-2">
-          Привет, <strong><%= current_user.name %></strong>!
-        </p>
-        <p class="text-sm text-gray-500">
-          Ваша роль:
-          <span class="inline-block bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-medium">
-            <%= current_user.organizer? ? "Организатор" : "Посетитель" %>
-          </span>
-        </p>
-      </div>
-    <% end %>
+      <h1 class="font-display font-extrabold text-4xl sm:text-6xl text-ink leading-tight tracking-tight">
+        Найди своё<br>
+        <span class="text-brand">следующее событие</span>
+      </h1>
+
+      <p class="mt-6 text-lg text-ink-2 leading-relaxed">
+        Конференции, митапы, концерты и воркшопы.
+        Создавай, продавай билеты и управляй гостями в одном месте.
+      </p>
+
+      <% unless user_signed_in? %>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <%= link_to "Создать событие", new_user_registration_path,
+              class: "inline-flex items-center px-6 py-3 text-sm font-semibold text-white bg-brand hover:bg-brand-light transition rounded-lg",
+              style: "background-color: darkorange; color: white;" %>
+          <%= link_to "Найти событие", new_user_session_path,
+              class: "inline-flex items-center px-6 py-3 text-sm font-semibold text-ink bg-surface border border-border hover:border-ink-4 transition rounded-lg" %>
+        </div>
+      <% end %>
+    </div>
   </div>
-</div>
+</section>
+
+<%# Приветствие для залогиненных %>
+<% if user_signed_in? %>
+  <section class="max-w-6xl mx-auto px-4 py-12">
+    <div class="bg-surface border border-border rounded-card p-6 flex items-center justify-between">
+      <div>
+        <p class="text-sm text-ink-3">С возвращением,</p>
+        <p class="font-display font-bold text-xl text-ink mt-1"><%= current_user.name %></p>
+      </div>
+
+      <% if current_user.organizer? %>
+        <%= link_to "Создать событие", "#",
+            class: "px-4 py-2 text-sm font-semibold text-white bg-brand hover:bg-brand-light transition rounded-lg" %>
+      <% else %>
+        <%= link_to "Мои билеты", "#",
+            class: "px-4 py-2 text-sm font-semibold text-ink bg-canvas border border-border hover:border-ink-4 transition rounded-lg" %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<%# Заглушка для будущих событий %>
+<section class="max-w-6xl mx-auto px-4 py-16">
+  <div class="flex items-end justify-between mb-8">
+    <div>
+      <h2 class="font-display font-bold text-2xl text-ink">Скоро</h2>
+      <p class="text-sm text-ink-3 mt-1">Ближайшие события на платформе</p>
+    </div>
+  </div>
+
+  <div class="bg-surface border border-dashed border-border rounded-card p-16 text-center">
+    <p class="text-ink-3 text-sm">Пока нет событий. Скоро здесь появятся карточки.</p>
+  </div>
+</section>

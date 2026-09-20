@@ -1,41 +1,60 @@
-<nav class="bg-white shadow-sm border-b border-gray-200">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <div class="flex items-center">
-        <%= link_to root_path, class: "flex items-center space-x-2" do %>
-          <span class="text-xl font-bold text-gray-900">Eventally</span>
-        <% end %>
+<header class="sticky top-0 z-50 bg-surface border-b border-border" style="background-color: white;">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
-        <div class="ml-10 hidden md:flex items-baseline space-x-4">
-          <%= link_to "События", root_path,
-              class: "text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
-        </div>
+    <%# Логотип %>
+    <%= link_to root_path, class: "flex items-center gap-2 hover:opacity-80 transition-opacity" do %>
+      <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white text-sm font-bold font-display">
+        E
       </div>
+      <span class="text-lg font-bold tracking-tight font-display text-ink">
+        Eventally
+      </span>
+    <% end %>
 
-      <div class="flex items-center space-x-4">
-        <% if user_signed_in? %>
-          <% if current_user.organizer? %>
-            <%= link_to "Мои события", "#",
-                class: "hidden md:inline text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
-          <% else %>
-            <%= link_to "Мои билеты", "#",
-                class: "hidden md:inline text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
-          <% end %>
+    <%# Меню %>
+    <nav class="hidden md:flex items-center gap-1">
+      <%= link_to "События", root_path,
+          class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{current_page?(root_path) ? 'text-brand bg-brand-muted' : 'text-ink-2 hover:opacity-80'}" %>
 
-          <span class="text-sm text-gray-700 hidden sm:inline">
-            <%= current_user.name %>
-          </span>
+      <%= link_to "Организаторы", "#",
+          class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors text-ink-2 hover:opacity-80" %>
+    </nav>
 
-          <%= button_to "Выйти", destroy_user_session_path,
-              method: :delete,
-              class: "text-sm text-gray-600 hover:text-red-600 cursor-pointer" %>
+    <%# Действия %>
+    <div class="flex items-center gap-2">
+      <% if user_signed_in? %>
+        <% if current_user.organizer? %>
+          <%= link_to "Мои события", "#",
+              class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity" %>
         <% else %>
-          <%= link_to "Войти", new_user_session_path,
-              class: "text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium" %>
-          <%= link_to "Регистрация", new_user_registration_path,
-              class: "bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium" %>
+          <%= link_to "Мои билеты", "#",
+              class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity" %>
         <% end %>
-      </div>
+
+        <%= button_to "Выйти", destroy_user_session_path,
+            method: :delete,
+            class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity cursor-pointer" %>
+
+        <%= link_to "#",
+            class: "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand hover:opacity-90 active:scale-95 transition-all font-display" do %>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Создать
+        <% end %>
+      <% else %>
+        <%= link_to "Войти", new_user_session_path,
+            class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity" %>
+
+        <%= link_to new_user_registration_path,
+            class: "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand hover:opacity-90 active:scale-95 transition-all font-display",
+            style: "background-color: darkorange; color: white;" do %>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Создать
+        <% end %>
+      <% end %>
     </div>
   </div>
-</nav>
+</header>
