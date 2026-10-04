@@ -29,3 +29,8 @@
 
 en:
   hello: "Hello world"
+  errors:
+    messages:
+      after_start: "must be after the start"
+      below_sold: "can't be less than tickets already sold (%{count})"
+      not_organizer: "must have the organizer role"

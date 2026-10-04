@@ -1,0 +1,34 @@
+conf_standard:
+  event: rails_conf
+  name: Стандарт
+  price: 4900
+  quota: 100
+  sold_count: 2
+
+conf_vip:
+  event: rails_conf
+  name: VIP
+  price: 12000
+  quota: 1
+  sold_count: 1
+
+meetup_free:
+  event: ruby_meetup
+  name: Вход
+  price: 0
+  quota: 50
+  sold_count: 0
+
+workshop_standard:
+  event: draft_workshop
+  name: Стандарт
+  price: 1500
+  quota: 30
+  sold_count: 0
+
+concert_standard:
+  event: past_concert
+  name: Стандарт
+  price: 2200
+  quota: 150
+  sold_count: 0

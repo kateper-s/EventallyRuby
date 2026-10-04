@@ -1,16 +1,15 @@
-<footer class="bg-surface border-t border-border mt-20">
-  <div class="max-w-7xl mx-auto py-8 px-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 rounded-md bg-brand flex items-center justify-center text-white text-xs font-bold font-display">
-          E
-        </div>
-        <span class="font-display font-semibold text-ink">Eventally</span>
-      </div>
+<footer class="mt-20 border-t border-border bg-surface">
+  <div class="container-page flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
+    <%= link_to root_path, class: "flex items-center gap-2" do %>
+      <span class="flex size-6 items-center justify-center rounded-md bg-brand font-display text-xs font-extrabold text-white">E</span>
+      <span class="font-display font-bold text-ink">Eventally</span>
+    <% end %>
 
-      <p class="text-sm text-ink-3">
-        © <%= Date.current.year %> · Учебный проект
-      </p>
-    </div>
+    <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-ink-3" aria-label="Ссылки в подвале">
+      <%= link_to "События", root_path, class: "transition-colors hover:text-ink" %>
+      <%= link_to "Организаторам", "#", class: "transition-colors hover:text-ink" %>
+    </nav>
+
+    <p class="text-xs text-ink-3">© <%= Date.current.year %> · Учебный проект</p>
   </div>
 </footer>

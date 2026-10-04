@@ -1,64 +1,246 @@
-<%# Hero %>
-<section class="bg-surface border-b border-border">
-  <div class="max-w-6xl mx-auto px-4 py-20 sm:py-28">
-    <div class="max-w-2xl">
-      <span class="inline-block py-1 text-xs font-medium text-brand bg-brand-muted rounded-full mb-6">
-        Платформа мероприятий
-      </span>
+<div data-controller="filters" data-action="keydown@window->filters#focusSearch">
 
-      <h1 class="font-display font-extrabold text-4xl sm:text-6xl text-ink leading-tight tracking-tight">
-        Найди своё<br>
-        <span class="text-brand">следующее событие</span>
-      </h1>
+  <section class="relative overflow-hidden border-b border-border bg-surface">
+    <div class="pointer-events-none absolute -right-40 -top-40 size-[520px] rounded-full bg-brand-muted blur-3xl" aria-hidden="true"></div>
 
-      <p class="mt-6 text-lg text-ink-2 leading-relaxed">
-        Конференции, митапы, концерты и воркшопы.
-        Создавай, продавай билеты и управляй гостями в одном месте.
-      </p>
-
-      <% unless user_signed_in? %>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <%= link_to "Создать событие", new_user_registration_path,
-              class: "inline-flex items-center px-6 py-3 text-sm font-semibold text-white bg-brand hover:bg-brand-light transition rounded-lg",
-              style: "background-color: darkorange; color: white;" %>
-          <%= link_to "Найти событие", new_user_session_path,
-              class: "inline-flex items-center px-6 py-3 text-sm font-semibold text-ink bg-surface border border-border hover:border-ink-4 transition rounded-lg" %>
-        </div>
-      <% end %>
-    </div>
-  </div>
-</section>
-
-<%# Приветствие для залогиненных %>
-<% if user_signed_in? %>
-  <section class="max-w-6xl mx-auto px-4 py-12">
-    <div class="bg-surface border border-border rounded-card p-6 flex items-center justify-between">
+    <div class="container-page relative grid gap-10 py-12 md:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:gap-14">
       <div>
-        <p class="text-sm text-ink-3">С возвращением,</p>
-        <p class="font-display font-bold text-xl text-ink mt-1"><%= current_user.name %></p>
+        <span class="badge mb-5"><%= icon(:sparkles) %>Платформа мероприятий</span>
+
+        <h1 class="heading-display">
+          Найди своё<br>
+          <span class="text-brand">следующее событие</span>
+        </h1>
+
+        <p class="mt-4 max-w-lg text-[15px] leading-relaxed text-ink-2">
+          Конференции, митапы, концерты и воркшопы. Покупайте билеты в пару кликов,
+          а организаторам — продажи и чекин гостей в одном месте.
+        </p>
+
+        <div class="mt-8 flex flex-col gap-2 rounded-panel border-[1.5px] border-border bg-surface p-2 shadow-card sm:flex-row" role="search">
+          <div class="input-group flex-1">
+            <%= icon(:search) %>
+            <input type="search" name="q" form="event-filters" value="<%= @filters[:q] %>"
+                   class="input border-transparent bg-transparent pr-16 hover:border-transparent focus:border-transparent focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
+                   placeholder="Название, место или организатор"
+                   autocomplete="off" aria-label="Поиск событий"
+                   data-filters-target="search"
+                   data-action="input->filters#search keydown->filters#searchKeydown">
+            <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-3 transition-colors hover:bg-canvas hover:text-ink"
+                    data-filters-target="clear" data-action="filters#clearSearch" aria-label="Очистить поиск" <%= "hidden" if @filters[:q].blank? %>>
+              <%= icon(:x) %>
+            </button>
+            <kbd class="kbd pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 sm:inline-flex"
+                 data-filters-target="hotkey" <%= "hidden" if @filters[:q].present? %>>/</kbd>
+          </div>
+          <button type="submit" form="event-filters" class="btn btn-primary btn-lg" data-action="filters#submitAndScroll">
+            Найти
+          </button>
+        </div>
+
+        <dl class="mt-8 grid grid-cols-3 gap-4 sm:flex sm:gap-10">
+          <div>
+            <dt class="text-caption">Событий</dt>
+            <dd class="font-display text-2xl font-extrabold text-ink"><%= @stats[:events] %></dd>
+          </div>
+          <div>
+            <dt class="text-caption">Городов</dt>
+            <dd class="font-display text-2xl font-extrabold text-ink"><%= @stats[:cities] %></dd>
+          </div>
+          <div>
+            <dt class="text-caption">Комиссия</dt>
+            <dd class="font-display text-2xl font-extrabold text-success">0 ₽</dd>
+          </div>
+        </dl>
       </div>
 
-      <% if current_user.organizer? %>
-        <%= link_to "Создать событие", "#",
-            class: "px-4 py-2 text-sm font-semibold text-white bg-brand hover:bg-brand-light transition rounded-lg" %>
-      <% else %>
-        <%= link_to "Мои билеты", "#",
-            class: "px-4 py-2 text-sm font-semibold text-ink bg-canvas border border-border hover:border-ink-4 transition rounded-lg" %>
+      <% if @featured %>
+        <article class="panel card-interactive group relative hidden overflow-hidden lg:block">
+          <div class="relative">
+            <div class="cover cover-placeholder cover-<%= @featured.category %> aspect-[16/9]">
+              <%= icon(@featured.category_icon, stroke_width: 1.5, css_class: "size-24") %>
+            </div>
+            <span class="badge absolute left-4 top-4 bg-brand text-white"><%= icon(:sparkles) %>Главное событие недели</span>
+          </div>
+
+          <div class="p-5">
+            <p class="flex items-center gap-1.5 font-display text-xs font-bold text-brand">
+              <%= icon(:calendar, css_class: "size-3.5") %>
+              <time datetime="<%= @featured.starts_at.iso8601 %>"><%= event_datetime(@featured.starts_at) %></time>
+            </p>
+            <h2 class="heading-2 mt-2">
+              <%= link_to @featured.title, "#", class: "after:absolute after:inset-0 after:content-[''] focus:outline-none" %>
+            </h2>
+            <p class="mt-1.5 flex items-center gap-1.5 text-ink-3">
+              <%= icon(:map_pin, css_class: "size-3.5") %><%= @featured.venue %> · <%= @featured.city %>
+            </p>
+
+            <div class="mt-5 flex items-center justify-between gap-4 border-t border-border pt-4">
+              <div>
+                <p class="text-caption">Билеты</p>
+                <p class="font-display text-lg font-extrabold"><%= event_price(@featured.price) %></p>
+              </div>
+              <span class="btn btn-primary">
+                <%= icon(:ticket) %>Купить билет
+              </span>
+            </div>
+          </div>
+        </article>
       <% end %>
     </div>
   </section>
-<% end %>
 
-<%# Заглушка для будущих событий %>
-<section class="max-w-6xl mx-auto px-4 py-16">
-  <div class="flex items-end justify-between mb-8">
+  <% if user_signed_in? %>
+    <section class="container-page pt-8">
+      <div class="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-3">
+          <%= avatar(current_user.name, size: :lg) %>
+          <div>
+            <p class="text-caption">С возвращением,</p>
+            <p class="font-display text-lg font-bold text-ink"><%= current_user.name %></p>
+          </div>
+        </div>
+
+        <% if current_user.organizer? %>
+          <%= link_to "#", class: "btn btn-primary" do %><%= icon(:plus) %>Создать событие<% end %>
+        <% else %>
+          <%= link_to "#", class: "btn btn-secondary" do %><%= icon(:ticket) %>Мои билеты<% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="container-page scroll-mt-20 py-10 md:py-14" id="catalog" data-filters-target="results">
     <div>
-      <h2 class="font-display font-bold text-2xl text-ink">Скоро</h2>
-      <p class="text-sm text-ink-3 mt-1">Ближайшие события на платформе</p>
+      <h2 class="heading-1">Ближайшие события</h2>
+      <p class="mt-1 text-ink-3">Выбирайте по категории, дате и цене</p>
     </div>
-  </div>
 
-  <div class="bg-surface border border-dashed border-border rounded-card p-16 text-center">
-    <p class="text-ink-3 text-sm">Пока нет событий. Скоро здесь появятся карточки.</p>
-  </div>
-</section>
+    <%= form_with url: root_path, method: :get, id: "event-filters", class: "mt-6 space-y-4",
+          data: { filters_target: "form", turbo_frame: "events", turbo_action: "advance", action: "change->filters#submit" } do %>
+
+      <fieldset class="-mx-4 min-w-0 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0">
+        <legend class="sr-only">Категория</legend>
+        <div class="flex gap-2 sm:flex-wrap">
+          <label class="chip">
+            <%= radio_button_tag :category, "", @filters[:category].nil?, class: "sr-only", id: "category_all" %>
+            Все
+            <span class="chip-count"><%= @category_counts.values.sum %></span>
+          </label>
+          <% @categories.each do |key, category| %>
+            <label class="chip">
+              <%= radio_button_tag :category, key, @filters[:category] == key, class: "sr-only" %>
+              <%= icon(category[:icon]) %>
+              <%= category[:name] %>
+              <span class="chip-count"><%= @category_counts.fetch(key, 0) %></span>
+            </label>
+          <% end %>
+        </div>
+      </fieldset>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <fieldset class="w-full min-w-0 overflow-x-auto no-scrollbar sm:w-auto">
+          <legend class="sr-only">Дата</legend>
+          <div class="tabs">
+            <label class="tab">
+              <%= radio_button_tag :period, "", @filters[:period].nil?, class: "sr-only", id: "period_all" %>
+              Любая дата
+            </label>
+            <% DemoEvent::PERIODS.each do |key, name| %>
+              <label class="tab">
+                <%= radio_button_tag :period, key, @filters[:period] == key, class: "sr-only" %>
+                <%= name %>
+              </label>
+            <% end %>
+          </div>
+        </fieldset>
+
+        <label class="chip">
+          <%= check_box_tag :free, "1", @filters[:free], class: "sr-only" %>
+          <%= icon(:check) %>Бесплатные
+        </label>
+
+        <div class="ml-auto flex items-center gap-2">
+          <label for="sort" class="hidden text-ink-3 sm:block">Сортировка</label>
+          <%= select_tag :sort, options_for_select(DemoEvent::SORTS.invert, @filters[:sort]),
+                class: "input w-auto py-2 font-display text-[13px] font-semibold" %>
+        </div>
+      </div>
+
+      <noscript><button type="submit" class="btn btn-secondary">Применить</button></noscript>
+    <% end %>
+
+    <%= turbo_frame_tag "events", class: "mt-8", data: { turbo_action: "advance" } do %>
+      <% filtered = @filters[:q].present? || @filters[:category] || @filters[:period] || @filters[:free] %>
+
+      <div class="mb-5 flex items-center justify-between gap-4">
+        <p class="text-ink-3" aria-live="polite">
+          <% if filtered %>
+            Найдено <span class="font-semibold text-ink"><%= ru_plural(@events.size, "событие", "события", "событий") %></span>
+            <% if @filters[:q].present? %>по запросу «<%= @filters[:q] %>»<% end %>
+          <% else %>
+            <span class="font-semibold text-ink"><%= ru_plural(@events.size, "событие", "события", "событий") %></span> в ближайшее время
+          <% end %>
+        </p>
+
+        <% if filtered %>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="filters#reset">
+            <%= icon(:x) %>Сбросить фильтры
+          </button>
+        <% end %>
+      </div>
+
+      <% if @events.any? %>
+        <div class="event-grid">
+          <%= render partial: "events/card", collection: @events, as: :event %>
+        </div>
+      <% else %>
+        <div class="flex flex-col items-center rounded-card border-[1.5px] border-dashed border-border bg-surface px-6 py-16 text-center">
+          <span class="flex size-14 items-center justify-center rounded-full bg-brand-muted text-brand">
+            <%= icon(:search, css_class: "size-6") %>
+          </span>
+          <h3 class="heading-3 mt-4">Ничего не нашлось</h3>
+          <p class="mt-1 max-w-sm text-ink-3">Попробуйте изменить запрос или убрать часть фильтров.</p>
+          <button type="button" class="btn btn-secondary mt-6" data-action="filters#reset">Сбросить фильтры</button>
+        </div>
+      <% end %>
+    <% end %>
+  </section>
+
+  <% unless user_signed_in? && current_user.visitor? %>
+    <section class="container-page">
+      <div class="panel relative overflow-hidden border-brand/15 bg-brand-muted p-6 shadow-none md:p-10">
+        <div class="pointer-events-none absolute -bottom-24 -right-24 size-72 rounded-full bg-brand/10" aria-hidden="true"></div>
+
+        <div class="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div>
+            <p class="eyebrow">Организаторам</p>
+            <h2 class="heading-1 mt-2 max-w-xl">Проводите мероприятия? Запустите продажи за 5 минут</h2>
+
+            <ul class="mt-6 grid gap-3 sm:grid-cols-3">
+              <% [[:ticket, "Несколько типов билетов", "с квотами и ценами"],
+                  [:map_pin, "Страница события", "обложка, описание, карта"],
+                  [:users, "Чекин гостей", "по QR-коду на входе"]].each do |icon_name, title, text| %>
+                <li class="flex items-start gap-3">
+                  <span class="flex size-9 shrink-0 items-center justify-center rounded-control bg-surface text-brand shadow-card">
+                    <%= icon(icon_name) %>
+                  </span>
+                  <span>
+                    <span class="block font-display text-sm font-bold text-ink"><%= title %></span>
+                    <span class="block text-xs text-ink-3"><%= text %></span>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <%= link_to (user_signed_in? ? "#" : new_user_registration_path), class: "btn btn-primary btn-lg" do %>
+              <%= icon(:plus) %>Создать событие
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </section>
+  <% end %>
+</div>

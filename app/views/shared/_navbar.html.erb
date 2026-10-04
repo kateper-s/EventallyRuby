@@ -1,60 +1,94 @@
-<header class="sticky top-0 z-50 bg-surface border-b border-border" style="background-color: white;">
-  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<header class="sticky top-0 z-50 border-b border-border bg-surface"
+        data-controller="toggle"
+        data-action="click@window->toggle#closeOnClickOutside keydown.esc@window->toggle#close turbo:before-cache@document->toggle#close">
+  <div class="container-page flex h-16 items-center justify-between gap-4">
 
-    <%# Логотип %>
-    <%= link_to root_path, class: "flex items-center gap-2 hover:opacity-80 transition-opacity" do %>
-      <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white text-sm font-bold font-display">
-        E
-      </div>
-      <span class="text-lg font-bold tracking-tight font-display text-ink">
-        Eventally
-      </span>
+    <%= link_to root_path, class: "flex items-center gap-2 transition-opacity hover:opacity-80", "aria-label": "Eventally — на главную" do %>
+      <span class="flex size-8 items-center justify-center rounded-control bg-brand font-display text-sm font-extrabold text-white">E</span>
+      <span class="font-display text-lg font-extrabold tracking-tight text-ink">Eventally</span>
     <% end %>
 
-    <%# Меню %>
-    <nav class="hidden md:flex items-center gap-1">
-      <%= link_to "События", root_path,
-          class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors #{current_page?(root_path) ? 'text-brand bg-brand-muted' : 'text-ink-2 hover:opacity-80'}" %>
-
-      <%= link_to "Организаторы", "#",
-          class: "px-4 py-2 rounded-lg text-sm font-medium transition-colors text-ink-2 hover:opacity-80" %>
+    <nav class="hidden flex-1 items-center gap-1 md:flex" aria-label="Основное меню">
+      <%= nav_link "События", root_path %>
+      <%= nav_link "Организаторам", "#" %>
     </nav>
 
-    <%# Действия %>
     <div class="flex items-center gap-2">
       <% if user_signed_in? %>
+        <%= link_to (current_user.organizer? ? "Мои события" : "Мои билеты"), "#",
+            class: "btn btn-ghost hidden md:inline-flex" %>
+
         <% if current_user.organizer? %>
-          <%= link_to "Мои события", "#",
-              class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity" %>
-        <% else %>
-          <%= link_to "Мои билеты", "#",
-              class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity" %>
+          <%= link_to "#", class: "btn btn-primary" do %>
+            <%= icon(:plus) %><span class="hidden sm:inline">Создать</span>
+          <% end %>
         <% end %>
 
-        <%= button_to "Выйти", destroy_user_session_path,
-            method: :delete,
-            class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity cursor-pointer" %>
+        <div class="relative hidden md:block"
+             data-controller="toggle"
+             data-action="click@window->toggle#closeOnClickOutside keydown.esc@window->toggle#close turbo:before-cache@document->toggle#close">
+          <button type="button" class="flex items-center gap-1.5 rounded-full p-0.5 pr-2 transition-colors hover:bg-canvas"
+                  data-toggle-target="button" data-action="toggle#toggle"
+                  aria-haspopup="menu" aria-expanded="false" aria-label="Меню пользователя">
+            <%= avatar(current_user.name, size: :sm) %>
+            <%= icon(:chevron_down, css_class: "size-4 text-ink-3") %>
+          </button>
 
-        <%= link_to "#",
-            class: "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand hover:opacity-90 active:scale-95 transition-all font-display" do %>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          Создать
-        <% end %>
+          <div class="dropdown-menu" role="menu" data-toggle-target="menu" hidden>
+            <div class="px-3 pb-2 pt-1.5">
+              <p class="truncate font-display text-sm font-bold text-ink"><%= current_user.name %></p>
+              <p class="truncate text-xs text-ink-3"><%= current_user.email %></p>
+            </div>
+            <div class="divider my-1"></div>
+            <%= link_to "#", class: "dropdown-item", role: "menuitem" do %>
+              <%= icon(:ticket) %> <%= current_user.organizer? ? "Мои события" : "Мои билеты" %>
+            <% end %>
+            <%= link_to edit_user_registration_path, class: "dropdown-item", role: "menuitem" do %>
+              <%= icon(:user) %> Профиль
+            <% end %>
+            <div class="divider my-1"></div>
+            <%= button_to destroy_user_session_path, method: :delete, class: "dropdown-item", role: "menuitem" do %>
+              <%= icon(:log_out) %> Выйти
+            <% end %>
+          </div>
+        </div>
       <% else %>
-        <%= link_to "Войти", new_user_session_path,
-            class: "hidden md:block px-4 py-2 rounded-lg text-sm font-medium text-ink-2 hover:opacity-80 transition-opacity" %>
-
-        <%= link_to new_user_registration_path,
-            class: "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand hover:opacity-90 active:scale-95 transition-all font-display",
-            style: "background-color: darkorange; color: white;" do %>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          Создать
+        <%= link_to "Войти", new_user_session_path, class: "btn btn-ghost hidden md:inline-flex" %>
+        <%= link_to new_user_registration_path, class: "btn btn-primary" do %>
+          <%= icon(:plus) %><span>Создать</span>
         <% end %>
       <% end %>
+
+      <button type="button" class="btn btn-ghost btn-icon md:hidden"
+              data-toggle-target="button" data-action="toggle#toggle"
+              aria-expanded="false" aria-controls="mobile-menu" aria-label="Открыть меню">
+        <%= icon(:menu, css_class: "size-5") %>
+      </button>
     </div>
+  </div>
+
+  <div id="mobile-menu" class="absolute inset-x-0 top-full border-b border-border bg-surface shadow-card-hover md:hidden"
+       data-toggle-target="menu" hidden>
+    <nav class="container-page flex flex-col gap-1 py-3" aria-label="Мобильное меню">
+      <%= nav_link "События", root_path %>
+      <%= nav_link "Организаторам", "#" %>
+      <div class="divider my-2"></div>
+      <% if user_signed_in? %>
+        <div class="flex items-center gap-3 px-3.5 py-2">
+          <%= avatar(current_user.name, size: :sm) %>
+          <div class="min-w-0">
+            <p class="truncate font-display text-sm font-bold"><%= current_user.name %></p>
+            <p class="truncate text-xs text-ink-3"><%= current_user.email %></p>
+          </div>
+        </div>
+        <%= nav_link (current_user.organizer? ? "Мои события" : "Мои билеты"), "#", icon_name: :ticket %>
+        <%= nav_link "Профиль", edit_user_registration_path, icon_name: :user %>
+        <%= button_to destroy_user_session_path, method: :delete, class: "nav-link w-full" do %>
+          <%= icon(:log_out) %> Выйти
+        <% end %>
+      <% else %>
+        <%= link_to "Войти", new_user_session_path, class: "btn btn-secondary btn-block" %>
+      <% end %>
+    </nav>
   </div>
 </header>

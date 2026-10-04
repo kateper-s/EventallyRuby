@@ -1,0 +1,17 @@
+<% messages = flash.to_hash.select { |_, message| message.present? && message.is_a?(String) } %>
+<% if messages.any? %>
+  <div class="container-page mt-4 space-y-2" id="flash">
+    <% messages.each do |type, message| %>
+      <% style, icon_name = flash_style(type) %>
+      <div class="alert <%= style %>" role="status"
+           data-controller="dismissible" data-dismissible-timeout-value="6000">
+        <%= icon(icon_name) %>
+        <p class="flex-1"><%= message %></p>
+        <button type="button" class="-m-1 rounded p-1 opacity-70 transition-opacity hover:opacity-100"
+                data-action="dismissible#dismiss" aria-label="Закрыть">
+          <%= icon(:x) %>
+        </button>
+      </div>
+    <% end %>
+  </div>
+<% end %>

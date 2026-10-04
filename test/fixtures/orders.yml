@@ -1,0 +1,17 @@
+ivan_conf:
+  user: ivan
+  status: paid
+  total: 9800
+  paid_at: <%= 1.day.ago %>
+
+ivan_vip:
+  user: ivan
+  status: paid
+  total: 12000
+  paid_at: <%= 1.day.ago %>
+
+ivan_meetup_cancelled:
+  user: ivan
+  status: cancelled
+  total: 0
+  paid_at: <%= 2.days.ago %>

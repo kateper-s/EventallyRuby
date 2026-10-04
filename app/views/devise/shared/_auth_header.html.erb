@@ -1,0 +1,9 @@
+<div class="mb-8 text-center">
+  <%= link_to root_path, class: "mb-6 inline-flex", "aria-label": "На главную" do %>
+    <span class="flex size-11 items-center justify-center rounded-field bg-brand font-display text-lg font-extrabold text-white shadow-brand">E</span>
+  <% end %>
+  <h1 class="heading-1"><%= title %></h1>
+  <% if local_assigns[:subtitle] %>
+    <p class="mt-2 text-ink-3"><%= subtitle %></p>
+  <% end %>
+</div>

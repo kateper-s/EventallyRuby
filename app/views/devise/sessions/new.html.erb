@@ -1,58 +1,34 @@
-<div class="min-h-screen flex items-center justify-center bg-canvas py-12 px-4">
+<% content_for :title, "Вход" %>
+
+<div class="container-page flex justify-center py-12 sm:py-20">
   <div class="w-full max-w-md">
+    <%= render "devise/shared/auth_header", title: "Вход",
+          subtitle: safe_join(["Нет аккаунта? ", link_to("Зарегистрироваться", new_user_registration_path, class: "font-semibold text-brand hover:opacity-80")]) %>
 
-    <div class="text-center mb-8">
-      <%= link_to root_path, class: "inline-flex items-center gap-2 mb-6" do %>
-        <div class="w-10 h-10 rounded-xl bg-brand flex items-center justify-center text-white font-bold">
-          E
-        </div>
-      <% end %>
-
-      <h1 class="font-display font-bold text-2xl text-ink">Вход</h1>
-      <p class="mt-2 text-sm text-ink-3">
-        Нет аккаунта?
-        <%= link_to "Зарегистрироваться", new_user_registration_path,
-            class: "font-medium hover:opacity-80 transition",
-            style: "color: darkorange;" %>
-      </p>
-    </div>
-
-    <div class="bg-surface border border-border rounded-card p-8">
-      <%= form_for(resource, as: resource_name,
-          url: session_path(resource_name),
-          html: { class: "space-y-5" }) do |f| %>
-
+    <div class="card p-6 sm:p-8">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-5" }) do |f| %>
         <div>
-          <%= f.label :email, "Email",
-              class: "block text-sm font-medium text-ink-2 mb-1.5" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email",
-              class: "w-full px-3 py-2.5 text-sm bg-canvas border border-border rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition" %>
+          <%= f.label :email, "Email", class: "label" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "you@example.com", class: "input" %>
         </div>
 
         <div>
-          <%= f.label :password, "Пароль",
-              class: "block text-sm font-medium text-ink-2 mb-1.5" %>
-          <%= f.password_field :password, autocomplete: "current-password",
-              class: "w-full px-3 py-2.5 text-sm bg-canvas border border-border rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition" %>
+          <div class="flex items-center justify-between">
+            <%= f.label :password, "Пароль", class: "label" %>
+            <%= link_to "Забыли пароль?", new_user_password_path, class: "mb-1.5 text-xs font-medium text-ink-3 transition-colors hover:text-brand" %>
+          </div>
+          <%= f.password_field :password, autocomplete: "current-password", class: "input" %>
         </div>
 
         <% if devise_mapping.rememberable? %>
-          <div class="flex items-center">
-            <%= f.check_box :remember_me,
-                class: "w-4 h-4 text-brand border-border rounded focus:ring-brand/20" %>
-            <%= f.label :remember_me, "Запомнить меня",
-                class: "ml-2 text-sm text-ink-2" %>
-          </div>
+          <label class="flex cursor-pointer items-center gap-2 text-ink-2">
+            <%= f.check_box :remember_me, class: "checkbox" %>
+            Запомнить меня
+          </label>
         <% end %>
 
-        <%= f.submit "Войти",
-            class: "w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand hover:bg-brand-light transition rounded-lg cursor-pointer" %>
+        <%= f.submit "Войти", class: "btn btn-primary btn-lg btn-block" %>
       <% end %>
     </div>
-
-    <p class="mt-6 text-center text-sm">
-      <%= link_to "Забыли пароль?", new_user_password_path,
-          class: "text-ink-3 hover:text-brand transition" %>
-    </p>
   </div>
 </div>

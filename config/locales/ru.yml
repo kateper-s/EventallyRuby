@@ -1,0 +1,65 @@
+ru:
+  activerecord:
+    models:
+      user: "Пользователь"
+      event: "Событие"
+      ticket_type: "Тип билета"
+      order: "Заказ"
+      ticket: "Билет"
+    attributes:
+      event:
+        title: "Название"
+        description: "Описание"
+        category: "Категория"
+        starts_at: "Начало"
+        ends_at: "Окончание"
+        venue: "Площадка"
+        city: "Город"
+        published: "Опубликовано"
+        organizer: "Организатор"
+      ticket_type:
+        name: "Название"
+        price: "Цена"
+        quota: "Количество мест"
+        sold_count: "Продано"
+      order:
+        status: "Статус"
+        total: "Сумма"
+      ticket:
+        code: "Код"
+        price: "Цена"
+      user:
+        name: "Имя"
+        email: "Email"
+        password: "Пароль"
+        password_confirmation: "Подтверждение пароля"
+        current_password: "Текущий пароль"
+        role: "Роль"
+        remember_me: "Запомнить меня"
+
+  errors:
+    format: "%{attribute}: %{message}"
+    messages:
+      accepted: "нужно принять"
+      after_start: "должно быть позже начала"
+      below_sold: "не может быть меньше уже проданных билетов (%{count})"
+      not_organizer: "нужна роль организатора"
+      blank: "заполните поле"
+      confirmation: "не совпадает с полем «%{attribute}»"
+      empty: "заполните поле"
+      equal_to: "значение должно быть равно %{count}"
+      exclusion: "это значение зарезервировано"
+      greater_than: "значение должно быть больше %{count}"
+      greater_than_or_equal_to: "значение должно быть не меньше %{count}"
+      inclusion: "недопустимое значение"
+      invalid: "неверный формат"
+      less_than: "значение должно быть меньше %{count}"
+      less_than_or_equal_to: "значение должно быть не больше %{count}"
+      not_a_number: "нужно число"
+      not_an_integer: "нужно целое число"
+      present: "поле должно быть пустым"
+      required: "не выбрано"
+      taken: "уже используется"
+      too_long: "не больше %{count} симв."
+      too_short: "не меньше %{count} симв."
+      wrong_length: "должно быть ровно %{count} симв."

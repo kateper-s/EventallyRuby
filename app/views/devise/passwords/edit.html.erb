@@ -1,25 +1,29 @@
-<h2>Change your password</h2>
+<% content_for :title, "Новый пароль" %>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
-  <%= f.hidden_field :reset_password_token %>
+<div class="container-page flex justify-center py-12 sm:py-20">
+  <div class="w-full max-w-md">
+    <%= render "devise/shared/auth_header", title: "Новый пароль" %>
 
-  <div class="field">
-    <p><%= f.label :password, "New password" %></p>
-    <% if @minimum_password_length %>
-      <p><em>(<%= @minimum_password_length %> characters minimum)</em></p>
-    <% end %>
-    <p><%= f.password_field :password, autofocus: true, autocomplete: "new-password" %></p>
+    <div class="card p-6 sm:p-8">
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+        <%= f.hidden_field :reset_password_token %>
+
+        <div>
+          <%= f.label :password, "Новый пароль", class: "label" %>
+          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "input" %>
+          <% if @minimum_password_length %>
+            <p class="hint">Минимум <%= ru_plural(@minimum_password_length, "символ", "символа", "символов") %></p>
+          <% end %>
+        </div>
+
+        <div>
+          <%= f.label :password_confirmation, "Повторите пароль", class: "label" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input" %>
+        </div>
+
+        <%= f.submit "Сохранить пароль", class: "btn btn-primary btn-lg btn-block" %>
+      <% end %>
+    </div>
   </div>
-
-  <div class="field">
-    <p><%= f.label :password_confirmation, "Confirm new password" %></p>
-    <p><%= f.password_field :password_confirmation, autocomplete: "new-password" %></p>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Change my password" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>

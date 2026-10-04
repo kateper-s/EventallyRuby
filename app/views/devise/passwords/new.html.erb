@@ -1,16 +1,25 @@
-<h2>Forgot your password?</h2>
+<% content_for :title, "Восстановление пароля" %>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+<div class="container-page flex justify-center py-12 sm:py-20">
+  <div class="w-full max-w-md">
+    <%= render "devise/shared/auth_header", title: "Забыли пароль?",
+          subtitle: "Пришлём ссылку для сброса на вашу почту" %>
 
-  <div class="field">
-    <p><%= f.label :email %></p>
-    <p><%= f.email_field :email, autofocus: true, autocomplete: "email" %></p>
+    <div class="card p-6 sm:p-8">
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-5" }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <div>
+          <%= f.label :email, "Email", class: "label" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "you@example.com", class: "input" %>
+        </div>
+
+        <%= f.submit "Отправить ссылку", class: "btn btn-primary btn-lg btn-block" %>
+      <% end %>
+    </div>
+
+    <p class="mt-6 text-center">
+      <%= link_to "Вернуться ко входу", new_user_session_path, class: "text-ink-3 transition-colors hover:text-brand" %>
+    </p>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Send me password reset instructions" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>

@@ -1,78 +1,54 @@
-<div class="min-h-screen flex items-center justify-center bg-canvas py-12 px-4">
+<% content_for :title, "Регистрация" %>
+
+<div class="container-page flex justify-center py-12 sm:py-20">
   <div class="w-full max-w-md">
+    <%= render "devise/shared/auth_header", title: "Создайте аккаунт",
+          subtitle: safe_join(["Уже есть аккаунт? ", link_to("Войти", new_user_session_path, class: "font-semibold text-brand hover:opacity-80")]) %>
 
-    <%# Логотип %>
-    <div class="text-center mb-8">
-      <%= link_to root_path, class: "inline-flex items-center gap-2 mb-6" do %>
-        <div class="w-10 h-10 rounded-xl bg-brand flex items-center justify-center text-white font-bold">
-          E
-        </div>
-      <% end %>
-
-      <h1 class="font-display font-bold text-2xl text-ink">Создайте аккаунт</h1>
-      <p class="mt-2 text-sm text-ink-3">
-        Уже есть аккаунт?
-        <%= link_to "Войти", new_user_session_path,
-            class: "font-medium text-brand hover:text-brand-light transition",
-            style: "color: darkorange;" %>
-      </p>
-    </div>
-
-    <div class="bg-surface border border-border rounded-card p-8">
-      <%= form_for(resource, as: resource_name,
-          url: registration_path(resource_name),
-          html: { class: "space-y-5" }) do |f| %>
-
+    <div class="card p-6 sm:p-8">
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-5" }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
 
+        <fieldset>
+          <legend class="label">Кто вы?</legend>
+          <div class="grid grid-cols-2 gap-3">
+            <% [["visitor", "Посетитель", "Покупаю билеты", :ticket],
+                ["organizer", "Организатор", "Провожу события", :sparkles]].each do |value, title, text, icon_name| %>
+              <label class="option-card">
+                <%= f.radio_button :role, value, class: "sr-only", checked: (resource.role.presence || "visitor") == value %>
+                <%= icon(icon_name, css_class: "size-5") %>
+                <span class="block font-display text-sm font-bold text-ink"><%= title %></span>
+                <span class="block text-xs text-ink-3"><%= text %></span>
+              </label>
+            <% end %>
+          </div>
+        </fieldset>
+
         <div>
-          <%= f.label :name, "Имя",
-              class: "block text-sm font-medium text-ink-2 mb-1.5" %>
-          <%= f.text_field :name, autofocus: true, autocomplete: "name",
-              class: "w-full px-3 py-2.5 text-sm bg-canvas border border-border rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition" %>
+          <%= f.label :name, "Имя", class: "label" %>
+          <%= f.text_field :name, autofocus: true, autocomplete: "name", placeholder: "Как к вам обращаться", class: "input" %>
         </div>
 
         <div>
-          <%= f.label :email, "Email",
-              class: "block text-sm font-medium text-ink-2 mb-1.5" %>
-          <%= f.email_field :email, autocomplete: "email",
-              class: "w-full px-3 py-2.5 text-sm bg-canvas border border-border rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition" %>
+          <%= f.label :email, "Email", class: "label" %>
+          <%= f.email_field :email, autocomplete: "email", placeholder: "you@example.com", class: "input" %>
         </div>
 
         <div>
-          <%= f.label :password, "Пароль",
-              class: "block text-sm font-medium text-ink-2 mb-1.5" %>
+          <%= f.label :password, "Пароль", class: "label" %>
+          <%= f.password_field :password, autocomplete: "new-password", class: "input" %>
           <% if @minimum_password_length %>
-            <p class="text-xs text-ink-4 mb-1.5">минимум <%= @minimum_password_length %> символов</p>
+            <p class="hint">Минимум <%= ru_plural(@minimum_password_length, "символ", "символа", "символов") %></p>
           <% end %>
-          <%= f.password_field :password, autocomplete: "new-password",
-              class: "w-full px-3 py-2.5 text-sm bg-canvas border border-border rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition" %>
         </div>
 
         <div>
-          <%= f.label :password_confirmation, "Повторите пароль",
-              class: "block text-sm font-medium text-ink-2 mb-1.5" %>
-          <%= f.password_field :password_confirmation, autocomplete: "new-password",
-              class: "w-full px-3 py-2.5 text-sm bg-canvas border border-border rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition" %>
+          <%= f.label :password_confirmation, "Повторите пароль", class: "label" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input" %>
         </div>
 
-        <div>
-          <%= f.label :role, "Кто вы?",
-              class: "block text-sm font-medium text-ink-2 mb-1.5" %>
-          <%= f.select :role,
-              [["Посетитель", "visitor"], ["Организатор", "organizer"]],
-              {},
-              class: "w-full px-3 py-2.5 text-sm bg-canvas border border-border rounded-lg focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition" %>
-        </div>
-
-        <%= f.submit "Зарегистрироваться",
-            class: "w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand hover:bg-brand-light transition rounded-lg cursor-pointer" %>
+        <%= f.submit "Зарегистрироваться", class: "btn btn-primary btn-lg btn-block" %>
       <% end %>
     </div>
-
-    <p class="mt-6 text-center text-sm">
-      <%= link_to "Забыли пароль?", new_user_password_path,
-          class: "text-ink-3 hover:text-brand transition" %>
-    </p>
   </div>
 </div>

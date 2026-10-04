@@ -1,0 +1,37 @@
+rails_conf:
+  organizer: anna
+  title: Rails Conf Russia
+  description: Главная конференция о Ruby on Rails
+  category: conference
+  starts_at: <%= 10.days.from_now.change(hour: 10) %>
+  ends_at: <%= 10.days.from_now.change(hour: 19) %>
+  venue: Технопарк «Сколково»
+  city: Москва
+  published: true
+
+ruby_meetup:
+  organizer: boris
+  title: Ruby Meetup 42
+  category: meetup
+  starts_at: <%= 3.days.from_now.change(hour: 19) %>
+  venue: Офис Evil Martians
+  city: Санкт-Петербург
+  published: true
+
+draft_workshop:
+  organizer: anna
+  title: Воркшоп по Hotwire
+  category: workshop
+  starts_at: <%= 20.days.from_now.change(hour: 18) %>
+  venue: Точка кипения
+  city: Москва
+  published: false
+
+past_concert:
+  organizer: anna
+  title: Джазовый вечер
+  category: concert
+  starts_at: <%= 10.days.ago.change(hour: 20) %>
+  venue: Крыша на Гороховой
+  city: Санкт-Петербург
+  published: true

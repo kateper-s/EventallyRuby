@@ -1,0 +1,17 @@
+anna:
+  name: Анна Смирнова
+  email: anna@example.com
+  role: organizer
+  encrypted_password: <%= Devise::Encryptor.digest(User, "password123") %>
+
+boris:
+  name: Борис Орлов
+  email: boris@example.com
+  role: organizer
+  encrypted_password: <%= Devise::Encryptor.digest(User, "password123") %>
+
+ivan:
+  name: Иван Петров
+  email: ivan@example.com
+  role: visitor
+  encrypted_password: <%= Devise::Encryptor.digest(User, "password123") %>

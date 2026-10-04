@@ -1,0 +1,23 @@
+ivan_conf_1:
+  order: ivan_conf
+  ticket_type: conf_standard
+  code: conf1code1conf1code1conf
+  price: 4900
+
+ivan_conf_2:
+  order: ivan_conf
+  ticket_type: conf_standard
+  code: conf2code2conf2code2conf
+  price: 4900
+
+ivan_vip:
+  order: ivan_vip
+  ticket_type: conf_vip
+  code: vip0code0vip0code0vip0co
+  price: 12000
+
+ivan_meetup_cancelled:
+  order: ivan_meetup_cancelled
+  ticket_type: meetup_free
+  code: meet0code0meet0code0meet
+  price: 0
