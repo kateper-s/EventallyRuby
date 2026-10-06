@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_04_100300) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_06_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -30,6 +30,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_04_100300) do
     t.index ["organizer_id"], name: "index_events_on_organizer_id"
     t.index ["starts_at"], name: "index_events_on_starts_at"
     t.check_constraint "ends_at IS NULL OR ends_at > starts_at", name: "events_ends_after_starts"
+  end
+
+  create_table "favorites", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "event_key", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "event_key"], name: "index_favorites_on_user_id_and_event_key", unique: true
+    t.index ["user_id"], name: "index_favorites_on_user_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -89,6 +98,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_04_100300) do
   end
 
   add_foreign_key "events", "users", column: "organizer_id"
+  add_foreign_key "favorites", "users"
   add_foreign_key "orders", "users"
   add_foreign_key "ticket_types", "events"
   add_foreign_key "tickets", "orders"

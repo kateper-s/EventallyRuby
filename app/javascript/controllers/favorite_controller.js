@@ -1,47 +1,49 @@
 import { Controller } from "@hotwired/stimulus"
 
-const STORAGE_KEY = "eventally:favorites"
-
 export default class extends Controller {
-  static values = { id: String }
+  static values = { url: String, loginUrl: String, active: Boolean }
 
-  connect() {
-    this.#render(this.#load().has(this.idValue))
-  }
-
-  toggle(event) {
-    event.preventDefault()
-    event.stopPropagation()
-
-    const favorites = this.#load()
-    const active = !favorites.has(this.idValue)
-    active ? favorites.add(this.idValue) : favorites.delete(this.idValue)
-    this.#save(favorites)
-    this.#render(active)
-
-    this.element.animate(
-      [{ transform: "scale(1)" }, { transform: "scale(1.25)" }, { transform: "scale(1)" }],
-      { duration: 250, easing: "ease-out" }
-    )
-  }
-
-  #render(active) {
+  activeValueChanged(active) {
     this.element.setAttribute("aria-pressed", String(active))
     this.element.setAttribute("aria-label", active ? "Убрать из избранного" : "Добавить в избранное")
   }
 
-  #load() {
+  async toggle(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    if (this.busy) return
+
+    const active = !this.activeValue
+    this.activeValue = active
+    this.element.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(1.25)" }, { transform: "scale(1)" }],
+      { duration: 250, easing: "ease-out" }
+    )
+
+    this.busy = true
     try {
-      return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"))
+      const response = await fetch(this.urlValue, {
+        method: active ? "POST" : "DELETE",
+        headers: { "X-CSRF-Token": this.#csrfToken, Accept: "application/json" },
+        credentials: "same-origin"
+      })
+
+      if (response.status === 401) {
+        this.activeValue = !active
+        window.Turbo ? window.Turbo.visit(this.loginUrlValue) : (window.location.href = this.loginUrlValue)
+        return
+      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+      this.dispatch("changed", { detail: { active } })
     } catch {
-      return new Set()
+      this.activeValue = !active
+    } finally {
+      this.busy = false
     }
   }
 
-  #save(favorites) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...favorites]))
-    } catch {
-    }
+  get #csrfToken() {
+    return document.querySelector("meta[name='csrf-token']")?.content || ""
   }
 }

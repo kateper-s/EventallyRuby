@@ -94,6 +94,7 @@ class DemoEvent
         organizer: demo_organizer, title: title, description: description, category: category,
         starts_at: starts_at, venue: venue, city: city, published: true
       )
+      Favorite.move(from: Favorite.key_for(self), to: Favorite.key_for(event))
       if event.ticket_types.empty?
         stub = ticket_types.first
         event.ticket_types.create!(name: stub.name, price: stub.price, quota: stub.quota, sold_count: stub.sold_count)

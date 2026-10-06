@@ -1,0 +1,31 @@
+<% content_for :title, "Избранное" %>
+
+<div class="container-page py-10 md:py-14">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="heading-1">Избранное</h1>
+    </div>
+    <%= link_to root_path(anchor: "catalog"), class: "btn btn-secondary" do %><%= icon(:search) %>Найти событие<% end %>
+  </div>
+
+  <% if @upcoming.empty? && @past.empty? %>
+    <div class="mt-8 flex flex-col items-center rounded-card border-[1.5px] border-dashed border-border bg-surface px-6 py-16 text-center">
+      <span class="flex size-14 items-center justify-center rounded-full bg-brand-muted text-brand">
+        <%= icon(:heart, css_class: "size-6") %>
+      </span>
+      <h2 class="heading-3 mt-4">В избранном пока пусто</h2>
+      <p class="mt-1 max-w-sm text-ink-3">Нажмите на сердечко на карточке события — оно появится здесь.</p>
+      <%= link_to root_path(anchor: "catalog"), class: "btn btn-primary mt-6" do %>Перейти в каталог<% end %>
+    </div>
+  <% end %>
+
+  <% [["Предстоящие ", @upcoming], ["Прошедшие ", @past]].each do |heading, events| %>
+    <% next if events.empty? %>
+    <section class="mt-10">
+      <h2 class="heading-2"><%= heading %> <span class="text-ink-4"><%= events.size %></span></h2>
+      <div class="event-grid mt-5">
+        <%= render partial: "events/card", collection: events, as: :event %>
+      </div>
+    </section>
+  <% end %>
+</div>

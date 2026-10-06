@@ -1,0 +1,7 @@
+ivan_conf:
+  user: ivan
+  event_key: event-<%= ActiveRecord::FixtureSet.identify(:rails_conf) %>
+
+ivan_demo:
+  user: ivan
+  event_key: demo_event-5

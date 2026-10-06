@@ -9,6 +9,7 @@ class User < ApplicationRecord
 
   has_many :orders, dependent: :destroy
   has_many :tickets, through: :orders
+  has_many :favorites, dependent: :delete_all
 
   validates :name, presence: true, length: { maximum: 60 }
 end

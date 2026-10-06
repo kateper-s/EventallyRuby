@@ -5,7 +5,13 @@ class ApplicationController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
+  helper_method :favorite_keys
+
   private
+
+  def favorite_keys
+    @favorite_keys ||= user_signed_in? ? current_user.favorites.pluck(:event_key).to_set : Set.new
+  end
 
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :role])

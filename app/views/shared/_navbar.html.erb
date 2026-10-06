@@ -15,6 +15,9 @@
       <% else %>
         <%= nav_link "Организаторам", "#" %>
       <% end %>
+      <% if user_signed_in? %>
+        <%= nav_link "Избранное", favorites_path %>
+      <% end %>
     </nav>
 
     <div class="flex items-center gap-2">
@@ -47,6 +50,9 @@
             <div class="divider my-1"></div>
             <%= link_to (current_user.organizer? ? my_events_path : my_tickets_path), class: "dropdown-item", role: "menuitem" do %>
               <%= icon(:ticket) %> <%= current_user.organizer? ? "Мои события" : "Мои билеты" %>
+            <% end %>
+            <%= link_to favorites_path, class: "dropdown-item", role: "menuitem" do %>
+              <%= icon(:heart) %> Избранное
             <% end %>
             <%= link_to edit_user_registration_path, class: "dropdown-item", role: "menuitem" do %>
               <%= icon(:user) %> Профиль
@@ -89,6 +95,7 @@
           </div>
         </div>
         <%= nav_link (current_user.organizer? ? "Мои события" : "Мои билеты"), (current_user.organizer? ? my_events_path : my_tickets_path), icon_name: :ticket %>
+        <%= nav_link "Избранное", favorites_path, icon_name: :heart %>
         <%= nav_link "Профиль", edit_user_registration_path, icon_name: :user %>
         <%= button_to destroy_user_session_path, method: :delete, class: "nav-link w-full" do %>
           <%= icon(:log_out) %> Выйти
