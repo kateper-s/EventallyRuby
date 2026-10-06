@@ -114,4 +114,21 @@ class EventTest < ActiveSupport::TestCase
       events(:draft_workshop).destroy!
     end
   end
+
+  test "organizer_name, price и sold_count для карточки" do
+    event = events(:rails_conf)
+    assert_equal "Анна Смирнова", event.organizer_name
+    assert_equal 4900, event.price
+    assert_equal 3, event.sold_count
+  end
+
+  test "related — опубликованные события той же категории без самого события" do
+    other = Event.create!(organizer: users(:anna), title: "Ещё конференция", category: "conference",
+                          starts_at: 15.days.from_now, venue: "Зал", city: "Москва", published: true)
+    related = events(:rails_conf).related
+
+    assert_includes related, other
+    assert_not_includes related, events(:rails_conf)
+    assert related.all? { |event| event.category == "conference" && event.published? }
+  end
 end
