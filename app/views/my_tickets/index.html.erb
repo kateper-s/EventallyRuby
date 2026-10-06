@@ -1,0 +1,72 @@
+<% content_for :title, "Мои билеты" %>
+
+<div class="container-page py-10 md:py-14">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="eyebrow">Посетитель</p>
+      <h1 class="heading-1 mt-2">Мои билеты</h1>
+      <p class="mt-1 text-ink-3">Покажите код билета на входе</p>
+    </div>
+    <%= link_to root_path(anchor: "catalog"), class: "btn btn-secondary" do %><%= icon(:search) %>Найти событие<% end %>
+  </div>
+
+  <% if @upcoming.empty? && @past.empty? %>
+    <div class="mt-8 flex flex-col items-center rounded-card border-[1.5px] border-dashed border-border bg-surface px-6 py-16 text-center">
+      <span class="flex size-14 items-center justify-center rounded-full bg-brand-muted text-brand">
+        <%= icon(:ticket, css_class: "size-6") %>
+      </span>
+      <h2 class="heading-3 mt-4">Билетов пока нет</h2>
+      <p class="mt-1 max-w-sm text-ink-3">Выберите событие в каталоге — купленные билеты появятся здесь.</p>
+      <%= link_to root_path(anchor: "catalog"), class: "btn btn-primary mt-6" do %>Перейти в каталог<% end %>
+    </div>
+  <% end %>
+
+  <% [["Предстоящие", @upcoming], ["Прошедшие", @past]].each do |heading, groups| %>
+    <% next if groups.empty? %>
+    <section class="mt-10">
+      <h2 class="heading-2"><%= heading %></h2>
+
+      <div class="mt-5 space-y-4">
+        <% groups.each do |event, tickets| %>
+          <article class="card flex flex-col overflow-hidden sm:flex-row" id="<%= dom_id(event, :tickets) %>">
+            <div class="cover-placeholder cover-<%= event.category %> flex h-28 shrink-0 items-center justify-center sm:h-auto sm:w-48 <%= 'grayscale opacity-70' if event.past? %>">
+              <%= icon(event.category_icon, stroke_width: 1.5, css_class: "size-12") %>
+            </div>
+
+            <div class="min-w-0 flex-1 p-5">
+              <p class="flex items-center gap-1.5 font-display text-xs font-bold text-brand">
+                <%= icon(:calendar, css_class: "size-3.5") %>
+                <time datetime="<%= event.starts_at.iso8601 %>"><%= event_datetime(event.starts_at) %></time>
+              </p>
+              <h3 class="heading-3 mt-1.5"><%= link_to event.title, event, class: "hover:text-brand" %></h3>
+              <p class="mt-1 flex items-center gap-1.5 text-ink-3">
+                <%= icon(:map_pin, css_class: "size-3.5 shrink-0") %><%= event.venue %> · <%= event.city %>
+              </p>
+
+              <ul class="mt-4 divide-y divide-border border-t border-border">
+                <% tickets.each do |ticket| %>
+                  <li class="flex flex-wrap items-center gap-x-4 gap-y-2 py-3" id="<%= dom_id(ticket) %>">
+                    <span class="min-w-0 flex-1">
+                      <span class="block font-display text-sm font-bold text-ink"><%= ticket.ticket_type.name %></span>
+                      <span class="block text-caption"><%= ticket.price.zero? ? "Бесплатно" : "#{number_with_delimiter(ticket.price, delimiter: ' ')} ₽" %></span>
+                    </span>
+                    <code class="ticket-code"><%= ticket.code.upcase %></code>
+                    <% if ticket.order.cancelled? %>
+                      <span class="badge badge-neutral">Отменён</span>
+                    <% elsif ticket.checked_in? %>
+                      <span class="badge badge-neutral">Использован</span>
+                    <% elsif event.past? %>
+                      <span class="badge badge-neutral">Событие прошло</span>
+                    <% else %>
+                      <span class="badge badge-success"><%= icon(:check) %>Действителен</span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>

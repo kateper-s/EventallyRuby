@@ -25,7 +25,7 @@
 
   --radius-control: 8px;
   --radius-field: 12px;
-  --radius-card: 12px;
+  --radius-card: 12px; 
   --radius-panel: 16px;
 
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -171,7 +171,19 @@
   .tab:has(input:checked),
   .tab[aria-selected="true"],
   .tab.is-active { @apply bg-brand text-white hover:text-white; }
+  .tab:has(input:checked) .chip-count,
+  .tab.is-active .chip-count { @apply bg-white/20 text-white; }
   .tab:has(input:focus-visible) { @apply outline-2 outline-offset-2 outline-brand; }
+
+  .date-range {
+    @apply m-0 inline-flex min-w-0 items-center gap-1.5 rounded-field border-[1.5px] border-border bg-surface px-3 py-1.5 transition-colors;
+    &:hover { @apply border-ink-4; }
+    &:focus-within { @apply border-brand; }
+  }
+  .date-input {
+    @apply w-[7.75rem] min-w-0 bg-transparent font-display text-[13px] font-semibold text-ink-2 outline-none;
+    &::-webkit-calendar-picker-indicator { @apply cursor-pointer opacity-50; }
+  }
 
   .badge {
     @apply inline-flex items-center gap-1 rounded-full bg-brand-muted px-2.5 py-1
@@ -278,4 +290,18 @@ turbo-frame[aria-busy="true"] { opacity: 0.55; transition: opacity 150ms ease; }
   }
   .option-card:has(input:checked) { @apply border-brand bg-brand-muted text-brand; }
   .option-card:has(input:focus-visible) { @apply outline-2 outline-offset-2 outline-brand; }
+
+  .ticket-option {
+    @apply relative flex cursor-pointer items-center gap-3 rounded-field border-[1.5px] border-border bg-surface px-3.5 py-3
+           transition-colors duration-150 hover:border-ink-4;
+  }
+  .ticket-option-radio {
+    @apply size-4 shrink-0 rounded-full border-[1.5px] border-ink-4 bg-surface transition-all;
+  }
+  .ticket-option:has(input:checked) { @apply border-brand bg-brand-muted; }
+  .ticket-option:has(input:checked) .ticket-option-radio { @apply border-[5px] border-brand; }
+  .ticket-option:has(input:focus-visible) { @apply outline-2 outline-offset-2 outline-brand; }
+  .ticket-option.is-disabled { @apply cursor-not-allowed opacity-50 hover:border-border; }
+
+  .ticket-code { @apply rounded-control bg-canvas px-2 py-1 font-mono text-xs font-semibold tracking-wider text-ink-2; }
 }

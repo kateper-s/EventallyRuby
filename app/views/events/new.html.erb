@@ -1,0 +1,79 @@
+<% content_for :title, "Новое событие" %>
+
+<div class="container-narrow py-10 sm:py-14">
+  <p class="eyebrow">Организаторам</p>
+  <h1 class="heading-1 mt-2">Новое событие</h1>
+  <p class="mt-1 text-ink-3">Заполните основное, остальное можно добавить позже.</p>
+
+  <%= form_with model: @event, class: "card mt-6 space-y-5 p-6 sm:p-8" do |f| %>
+    <%= render "devise/shared/error_messages", resource: @event %>
+
+    <div>
+      <%= f.label :title, class: "label" %>
+      <%= f.text_field :title, autofocus: true, maxlength: 120, placeholder: "Например, Ruby Meetup #43", class: "input" %>
+    </div>
+
+    <div>
+      <%= f.label :category, class: "label" %>
+      <%= f.select :category, Event::CATEGORIES.invert, { include_blank: "Выберите категорию" }, class: "input" %>
+    </div>
+
+    <div>
+      <%= f.label :description, class: "label" %>
+      <%= f.text_area :description, rows: 4, placeholder: "О чём событие, для кого и что будет", class: "input" %>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <%= f.label :starts_at, class: "label" %>
+        <%= f.datetime_local_field :starts_at, class: "input" %>
+      </div>
+      <div>
+        <%= f.label :ends_at, class: "label" %>
+        <%= f.datetime_local_field :ends_at, class: "input" %>
+        <p class="hint">Необязательно</p>
+      </div>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <%= f.label :venue, class: "label" %>
+        <%= f.text_field :venue, placeholder: "Название площадки или адрес", class: "input" %>
+      </div>
+      <div>
+        <%= f.label :city, class: "label" %>
+        <%= f.text_field :city, placeholder: "Москва", class: "input" %>
+      </div>
+    </div>
+
+    <fieldset>
+      <legend class="label">Билеты</legend>
+      <%= f.fields_for :ticket_types do |tf| %>
+        <div class="grid gap-3 sm:grid-cols-3">
+          <div>
+            <%= tf.label :name, class: "text-caption" %>
+            <%= tf.text_field :name, class: "input" %>
+          </div>
+          <div>
+            <%= tf.label :price, "Цена, ₽", class: "text-caption" %>
+            <%= tf.number_field :price, min: 0, step: 1, placeholder: "0 — бесплатно", class: "input" %>
+          </div>
+          <div>
+            <%= tf.label :quota, class: "text-caption" %>
+            <%= tf.number_field :quota, min: 1, step: 1, placeholder: "100", class: "input" %>
+          </div>
+        </div>
+      <% end %>
+    </fieldset>
+
+    <label class="flex items-center gap-2 text-sm text-ink-2">
+      <%= f.check_box :published, class: "checkbox" %>
+      Опубликовать сразу
+    </label>
+
+    <div class="flex flex-wrap gap-3 pt-2">
+      <%= f.submit "Создать событие", class: "btn btn-primary btn-lg" %>
+      <%= link_to "Отмена", root_path, class: "btn btn-ghost btn-lg" %>
+    </div>
+  <% end %>
+</div>

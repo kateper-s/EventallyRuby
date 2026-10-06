@@ -10,16 +10,21 @@
 
     <nav class="hidden flex-1 items-center gap-1 md:flex" aria-label="Основное меню">
       <%= nav_link "События", root_path %>
-      <%= nav_link "Организаторам", "#" %>
+      <% if user_signed_in? && current_user.organizer? %>
+        <%= nav_link "Мои события", my_events_path %>
+      <% else %>
+        <%= nav_link "Организаторам", "#" %>
+      <% end %>
     </nav>
 
     <div class="flex items-center gap-2">
       <% if user_signed_in? %>
-        <%= link_to (current_user.organizer? ? "Мои события" : "Мои билеты"), "#",
-            class: "btn btn-ghost hidden md:inline-flex" %>
+        <% unless current_user.organizer? %>
+          <%= link_to "Мои билеты", my_tickets_path, class: "btn btn-ghost hidden md:inline-flex" %>
+        <% end %>
 
         <% if current_user.organizer? %>
-          <%= link_to "#", class: "btn btn-primary" do %>
+          <%= link_to new_event_path, class: "btn btn-primary" do %>
             <%= icon(:plus) %><span class="hidden sm:inline">Создать</span>
           <% end %>
         <% end %>
@@ -40,7 +45,7 @@
               <p class="truncate text-xs text-ink-3"><%= current_user.email %></p>
             </div>
             <div class="divider my-1"></div>
-            <%= link_to "#", class: "dropdown-item", role: "menuitem" do %>
+            <%= link_to (current_user.organizer? ? my_events_path : my_tickets_path), class: "dropdown-item", role: "menuitem" do %>
               <%= icon(:ticket) %> <%= current_user.organizer? ? "Мои события" : "Мои билеты" %>
             <% end %>
             <%= link_to edit_user_registration_path, class: "dropdown-item", role: "menuitem" do %>
@@ -71,7 +76,9 @@
        data-toggle-target="menu" hidden>
     <nav class="container-page flex flex-col gap-1 py-3" aria-label="Мобильное меню">
       <%= nav_link "События", root_path %>
-      <%= nav_link "Организаторам", "#" %>
+      <% unless user_signed_in? && current_user.organizer? %>
+        <%= nav_link "Организаторам", "#" %>
+      <% end %>
       <div class="divider my-2"></div>
       <% if user_signed_in? %>
         <div class="flex items-center gap-3 px-3.5 py-2">
@@ -81,7 +88,7 @@
             <p class="truncate text-xs text-ink-3"><%= current_user.email %></p>
           </div>
         </div>
-        <%= nav_link (current_user.organizer? ? "Мои события" : "Мои билеты"), "#", icon_name: :ticket %>
+        <%= nav_link (current_user.organizer? ? "Мои события" : "Мои билеты"), (current_user.organizer? ? my_events_path : my_tickets_path), icon_name: :ticket %>
         <%= nav_link "Профиль", edit_user_registration_path, icon_name: :user %>
         <%= button_to destroy_user_session_path, method: :delete, class: "nav-link w-full" do %>
           <%= icon(:log_out) %> Выйти

@@ -18,6 +18,27 @@ class DemoEvent
     "month"   => "Месяц"
   }.freeze
 
+  TicketTypeStub = Struct.new(:name, :price, :quota, :sold_count, keyword_init: true) do
+    def available = quota.to_i - sold_count.to_i
+    def sold_out? = available <= 0
+    def free? = price.to_i.zero?
+  end
+
+  DESCRIPTIONS = [
+    "Главная конференция о Ruby on Rails в этом году: два потока докладов, воркшопы и много времени на нетворкинг.\n\nВ программе — Rails 8, Hotwire в продакшене, производительность Active Record и опыт команд, которые растят монолит годами. Обед и кофе-брейки включены в билет.",
+    "Практический воркшоп для тех, кто хочет делать живые интерфейсы без SPA.\n\nЗа вечер соберём каталог с фильтрами на Turbo Frames, напишем несколько Stimulus-контроллеров и разберём типичные ошибки. Нужен ноутбук с установленным Ruby 3.3 и Rails 7.",
+    "Сорок второй митап петербургского Ruby-сообщества. Тема вечера — скорость.\n\nДва доклада: как искать узкие места с rack-mini-profiler и stackprof и как мы ускорили фоновую обработку в пять раз. После докладов — пицца и общение.",
+    "Камерный джазовый концерт под открытым небом с видом на крыши Петербурга.\n\nКвартет исполнит стандарты и собственные композиции. В случае дождя концерт переносится в зал этажом ниже.",
+    "Юбилейная выставка о цифровом искусстве: от первых генеративных работ до интерактивных инсталляций.\n\nБолее 60 работ российских и зарубежных художников, VR-зона и экскурсии каждый час.",
+    "Утренний забег на 10 км вдоль набережной для любого уровня подготовки.\n\nСтарт в 8:00, на финише — вода, фрукты и памятные медали. Регистрация обязательна, количество участников ограничено.",
+    "Конференция для продуктовых дизайнеров: исследования, дизайн-системы и работа с метриками.\n\nСпикеры из крупных продуктовых команд расскажут о реальных кейсах, а в перерывах можно получить разбор портфолио.",
+    "Вечер для тех, кто никогда не работал с глиной.\n\nМастер покажет основы лепки и работы на гончарном круге, каждый сделает свою чашку или тарелку. Изделия обжигаются и будут готовы через две недели.",
+    "Митап про современный CSS: контейнерные запросы, :has(), каскадные слои и нативная вложенность.\n\nРазберём, что уже можно использовать в продакшене и без чего теперь можно обойтись.",
+    "Симфонический оркестр исполнит музыку из любимых фильмов: от классики Голливуда до современных саундтреков.\n\nПродолжительность — около двух часов с антрактом.",
+    "Открытый любительский турнир по настольному теннису в одиночном разряде.\n\nИгры по олимпийской системе, ракетки можно взять на месте. Победители получат призы от партнёров.",
+    "Фотовыставка о жизни на Крайнем Севере: города, люди и природа за полярным кругом.\n\nЭкспозиция дополнена аудиогидом с рассказами авторов снимков."
+  ].freeze
+
   SORTS = {
     "date"       => "Сначала ближайшие",
     "price_asc"  => "Сначала дешёвые",
@@ -37,6 +58,7 @@ class DemoEvent
   attribute :organizer, :string
   attribute :image_url, :string
   attribute :featured, :boolean, default: false
+  attribute :description, :string
 
   def persisted? = true
   def to_param = id.to_s
@@ -48,9 +70,27 @@ class DemoEvent
   def sold_out? = seats_left.to_i <= 0
   def almost_sold_out? = !sold_out? && seats_left.to_i <= [capacity.to_i / 10, 15].max
   def popularity = capacity.to_i - seats_left.to_i
+  def sold_count = popularity
+  def organizer_name = organizer
+  def ends_at = nil
+  def published? = true
+  def past? = starts_at.present? && starts_at < Time.current
+  def on_sale? = !past? && !sold_out?
+  def min_price = price
+
+  def ticket_types
+    [TicketTypeStub.new(name: free? ? "Вход" : "Стандарт", price: price.to_i,
+                        quota: capacity.to_i, sold_count: capacity.to_i - seats_left.to_i)]
+  end
+
+  def related(limit = 3)
+    self.class.all.select { |event| event.category == category && event.id != id }.first(limit)
+  end
 
   class << self
     def all
+      # Даты считаются от текущего дня, чтобы фильтры «Сегодня» и «Выходные»
+      # всегда что-то показывали.
       today = Time.zone.now.beginning_of_day
       saturday = today + ((6 - today.wday) % 7).days
       sunday   = today.sunday? ? today : saturday + 1.day
@@ -92,7 +132,7 @@ class DemoEvent
         { title: "Фотовыставка «Север»", category: "exhibition", starts_at: today + 25.days + 11.hours,
           venue: "Музей Москвы", city: "Москва", price: 450, capacity: 300, seats_left: 250,
           organizer: "Музей Москвы" }
-      ].each_with_index.map { |attrs, i| new(id: i + 1, **attrs) }
+      ].each_with_index.map { |attrs, i| new(id: i + 1, description: DESCRIPTIONS[i], **attrs) }
     end
 
     def find(id)
