@@ -1,7 +1,7 @@
-<p>Hello <%= @email %>!</p>
-
+<h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;color:#141210;">Email изменён</h1>
+<p style="margin:0 0 16px;">Здравствуйте, <%= @resource.try(:name).presence || @email %>!</p>
 <% if @resource.try(:unconfirmed_email?) %>
-  <p>We're contacting you to notify you that your email is being changed to <%= @resource.unconfirmed_email %>.</p>
+  <p style="margin:0;">Адрес вашего аккаунта меняется на <%= @resource.unconfirmed_email %>.</p>
 <% else %>
-  <p>We're contacting you to notify you that your email has been changed to <%= @resource.email %>.</p>
+  <p style="margin:0;">Адрес вашего аккаунта изменён на <%= @resource.email %>.</p>
 <% end %>

@@ -21,6 +21,19 @@ bin/rails db:seed    # демо-данные (anna@eventally.test / ivan@evental
 bin/dev              # сервер на http://localhost:3000
 ```
 
+## Почта (восстановление пароля)
+
+Скопируйте `.env.example` в `.env` и заполните SMTP:
+
+```bash
+SMTP_ADDRESS=smtp.yandex.ru
+SMTP_PORT=465
+SMTP_USERNAME=you@yandex.ru
+SMTP_PASSWORD=пароль_приложения
+```
+
+Без `SMTP_USERNAME` письма не отправляются, их текст виден в логе сервера.
+
 ## Тесты
 
 ```bash

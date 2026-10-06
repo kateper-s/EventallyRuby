@@ -49,6 +49,10 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
 end
 
+group :development, :test do
+  gem "dotenv-rails"
+end
+
 group :test do
   gem "minitest", "~> 5.25"
 end
