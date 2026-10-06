@@ -22,6 +22,7 @@ class DemoEvent
     def available = quota.to_i - sold_count.to_i
     def sold_out? = available <= 0
     def free? = price.to_i.zero?
+    def id = name
   end
 
   DESCRIPTIONS = [
@@ -83,9 +84,39 @@ class DemoEvent
                         quota: capacity.to_i, sold_count: capacity.to_i - seats_left.to_i)]
   end
 
+  def imported_event
+    Event.published.includes(:ticket_types, :organizer).find_by(title: title)
+  end
+
+  def import!
+    Event.transaction do
+      event = imported_event || Event.create!(
+        organizer: demo_organizer, title: title, description: description, category: category,
+        starts_at: starts_at, venue: venue, city: city, published: true
+      )
+      if event.ticket_types.empty?
+        stub = ticket_types.first
+        event.ticket_types.create!(name: stub.name, price: stub.price, quota: stub.quota, sold_count: stub.sold_count)
+      end
+      event
+    end
+  end
+
   def related(limit = 3)
     self.class.all.select { |event| event.category == category && event.id != id }.first(limit)
   end
+
+  private
+
+  def demo_organizer
+    User.organizer.find_by(name: organizer) || User.create!(
+      name: organizer, role: :organizer,
+      email: "demo-#{Digest::MD5.hexdigest(organizer)[0, 10]}@eventally.test",
+      password: SecureRandom.hex(16)
+    )
+  end
+
+  public
 
   class << self
     def all

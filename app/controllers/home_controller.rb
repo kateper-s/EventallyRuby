@@ -2,7 +2,7 @@ class HomeController < ApplicationController
   def index
     @filters    = filter_params
     @events     = EventCatalog.search(**@filters)
-    @featured   = DemoEvent.featured
+    @featured   = EventCatalog.featured
     @categories = DemoEvent::CATEGORIES
     catalog = EventCatalog.all
     @category_counts = EventCatalog.category_counts(catalog)

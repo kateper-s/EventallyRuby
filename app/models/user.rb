@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   has_many :organized_events, class_name: "Event", foreign_key: :organizer_id,
                               inverse_of: :organizer, dependent: :destroy
+
   has_many :orders, dependent: :destroy
   has_many :tickets, through: :orders
 

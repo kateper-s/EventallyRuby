@@ -69,7 +69,7 @@
               <time datetime="<%= @featured.starts_at.iso8601 %>"><%= event_datetime(@featured.starts_at) %></time>
             </p>
             <h2 class="heading-2 mt-2">
-              <%= link_to @featured.title, "#", class: "after:absolute after:inset-0 after:content-[''] focus:outline-none" %>
+              <%= link_to @featured.title, @featured, class: "after:absolute after:inset-0 after:content-[''] focus:outline-none" %>
             </h2>
             <p class="mt-1.5 flex items-center gap-1.5 text-ink-3">
               <%= icon(:map_pin, css_class: "size-3.5") %><%= @featured.venue %> · <%= @featured.city %>
@@ -102,17 +102,42 @@
         </div>
 
         <% if current_user.organizer? %>
-          <%= link_to "#", class: "btn btn-primary" do %><%= icon(:plus) %>Создать событие<% end %>
+          <%= link_to new_event_path, class: "btn btn-primary" do %><%= icon(:plus) %>Создать событие<% end %>
         <% else %>
-          <%= link_to "#", class: "btn btn-secondary" do %><%= icon(:ticket) %>Мои билеты<% end %>
+          <%= link_to my_tickets_path, class: "btn btn-secondary" do %><%= icon(:ticket) %>Мои билеты<% end %>
         <% end %>
       </div>
     </section>
   <% end %>
 
+  <% if @my_events %>
+    <section class="container-page pt-10" id="my-events">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h2 class="heading-1">Мои события</h2>
+          <p class="mt-1 text-ink-3">
+            <%= @my_events_count.zero? ? "У вас пока нет предстоящих событий" : "Ближайшие из #{ru_plural(@my_events_count, 'предстоящего', 'предстоящих', 'предстоящих')}" %>
+          </p>
+        </div>
+        <%= link_to my_events_path, class: "btn btn-ghost btn-sm shrink-0" do %>Все мои события<%= icon(:arrow_right) %><% end %>
+      </div>
+
+      <% if @my_events.any? %>
+        <div class="event-grid mt-6">
+          <%= render partial: "events/card", collection: @my_events, as: :event, locals: { manage: true } %>
+        </div>
+      <% else %>
+        <div class="mt-6 flex flex-col items-center gap-4 rounded-card border-[1.5px] border-dashed border-border bg-surface px-6 py-10 text-center sm:flex-row sm:justify-between sm:text-left">
+          <p class="text-ink-2">Создайте первое событие — оно появится здесь и в каталоге.</p>
+          <%= link_to new_event_path, class: "btn btn-primary" do %><%= icon(:plus) %>Создать событие<% end %>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+
   <section class="container-page scroll-mt-20 py-10 md:py-14" id="catalog" data-filters-target="results">
     <div>
-      <h2 class="heading-1">Ближайшие события</h2>
+      <h2 class="heading-1">Все события</h2>
       <p class="mt-1 text-ink-3">Выбирайте по категории, дате и цене</p>
     </div>
 
@@ -143,16 +168,28 @@
           <legend class="sr-only">Дата</legend>
           <div class="tabs">
             <label class="tab">
-              <%= radio_button_tag :period, "", @filters[:period].nil?, class: "sr-only", id: "period_all" %>
+              <%= radio_button_tag :period, "", @filters[:period].nil?, class: "sr-only", id: "period_all",
+                    data: { action: "filters#pickPeriod" } %>
               Любая дата
             </label>
-            <% DemoEvent::PERIODS.each do |key, name| %>
+            <% EventCatalog::PERIODS.each do |key, name| %>
               <label class="tab">
-                <%= radio_button_tag :period, key, @filters[:period] == key, class: "sr-only" %>
+                <%= radio_button_tag :period, key, @filters[:period] == key && !@filters[:from] && !@filters[:to], class: "sr-only",
+                      data: { action: "filters#pickPeriod" } %>
                 <%= name %>
               </label>
             <% end %>
           </div>
+        </fieldset>
+
+        <fieldset class="date-range">
+          <legend class="sr-only">Диапазон дат</legend>
+          <%= icon(:calendar, css_class: "size-4 shrink-0 text-ink-3") %>
+          <input type="date" name="from" value="<%= @filters[:from]&.iso8601 %>" min="<%= Date.current.iso8601 %>"
+                 class="date-input" aria-label="С даты" data-filters-target="dateFrom" data-action="filters#pickDate">
+          <span class="text-ink-4" aria-hidden="true">—</span>
+          <input type="date" name="to" value="<%= @filters[:to]&.iso8601 %>" min="<%= Date.current.iso8601 %>"
+                 class="date-input" aria-label="По дату" data-filters-target="dateTo" data-action="filters#pickDate">
         </fieldset>
 
         <label class="chip">
@@ -161,8 +198,8 @@
         </label>
 
         <div class="ml-auto flex items-center gap-2">
-          <label for="sort" class="hidden text-ink-3 sm:block">Сортировка</label>
-          <%= select_tag :sort, options_for_select(DemoEvent::SORTS.invert, @filters[:sort]),
+          <label for="sort" class="hidden text-ink-3 sm:block lg:hidden">Сортировка</label>
+          <%= select_tag :sort, options_for_select(EventCatalog::SORTS.invert, @filters[:sort]),
                 class: "input w-auto py-2 font-display text-[13px] font-semibold" %>
         </div>
       </div>
@@ -170,16 +207,19 @@
       <noscript><button type="submit" class="btn btn-secondary">Применить</button></noscript>
     <% end %>
 
-    <%= turbo_frame_tag "events", class: "mt-8", data: { turbo_action: "advance" } do %>
-      <% filtered = @filters[:q].present? || @filters[:category] || @filters[:period] || @filters[:free] %>
+    <%= turbo_frame_tag "events", target: "_top", class: "mt-8", data: { turbo_action: "advance" } do %>
+      <% filtered = @filters[:q].present? || @filters[:category] || @filters[:period] || @filters[:from] || @filters[:to] || @filters[:free] %>
 
       <div class="mb-5 flex items-center justify-between gap-4">
         <p class="text-ink-3" aria-live="polite">
           <% if filtered %>
             Найдено <span class="font-semibold text-ink"><%= ru_plural(@events.size, "событие", "события", "событий") %></span>
             <% if @filters[:q].present? %>по запросу «<%= @filters[:q] %>»<% end %>
+            <% if @filters[:from] || @filters[:to] %>
+              <%= [("с #{long_date(@filters[:from])}" if @filters[:from]), ("по #{long_date(@filters[:to])}" if @filters[:to])].compact.join(" ") %>
+            <% end %>
           <% else %>
-            <span class="font-semibold text-ink"><%= ru_plural(@events.size, "событие", "события", "событий") %></span> в ближайшее время
+            Всего <span class="font-semibold text-ink"><%= ru_plural(@events.size, "событие", "события", "событий") %></span>
           <% end %>
         </p>
 
@@ -235,7 +275,7 @@
           </div>
 
           <div class="flex flex-wrap gap-3">
-            <%= link_to (user_signed_in? ? "#" : new_user_registration_path), class: "btn btn-primary btn-lg" do %>
+            <%= link_to (user_signed_in? ? new_event_path : new_user_registration_path), class: "btn btn-primary btn-lg" do %>
               <%= icon(:plus) %>Создать событие
             <% end %>
           </div>

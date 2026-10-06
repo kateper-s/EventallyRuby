@@ -1,20 +1,27 @@
+<% manage = local_assigns.fetch(:manage, false) %>
 <article class="card card-interactive group relative flex flex-col overflow-hidden" id="<%= dom_id(event) %>">
   <div class="relative">
     <% if event.image_url.present? %>
       <%= image_tag event.image_url, alt: "", class: "cover #{'grayscale opacity-70' if event.sold_out?}", loading: "lazy" %>
     <% else %>
-      <div class="cover cover-placeholder cover-<%= event.category %> <%= 'grayscale opacity-70' if event.sold_out? %>">
+      <div class="cover cover-placeholder cover-<%= event.category %> <%= 'grayscale opacity-70' if event.sold_out? || (manage && event.past?) %>">
         <%= icon(event.category_icon, stroke_width: 1.5, css_class: "size-14") %>
       </div>
     <% end %>
 
     <span class="badge badge-solid absolute left-3 top-3"><%= event.category_name %></span>
 
-    <button type="button" class="favorite-btn absolute right-3 top-3 z-10"
-            data-controller="favorite" data-favorite-id-value="<%= event.id %>"
-            data-action="favorite#toggle" aria-pressed="false" aria-label="Добавить в избранное">
-      <%= icon(:heart) %>
-    </button>
+    <% if manage %>
+      <% unless event.published? %>
+        <span class="badge badge-warning absolute right-3 top-3">Черновик</span>
+      <% end %>
+    <% else %>
+      <button type="button" class="favorite-btn absolute right-3 top-3 z-10"
+              data-controller="favorite" data-favorite-id-value="<%= event.model_name.param_key %>-<%= event.id %>"
+              data-action="favorite#toggle" aria-pressed="false" aria-label="Добавить в избранное">
+        <%= icon(:heart) %>
+      </button>
+    <% end %>
   </div>
 
   <div class="flex flex-1 flex-col p-4">
@@ -24,7 +31,7 @@
     </p>
 
     <h3 class="heading-3 mt-2 line-clamp-2 text-base">
-      <%= link_to event.title, "#", class: "after:absolute after:inset-0 after:content-[''] focus:outline-none" %>
+      <%= link_to event.title, event, class: "after:absolute after:inset-0 after:content-[''] focus:outline-none" %>
     </h3>
 
     <p class="mt-1.5 flex min-w-0 items-center gap-1.5 text-ink-3">
@@ -35,17 +42,21 @@
     <div class="mt-auto pt-4">
       <div class="flex items-center justify-between gap-3 border-t border-border pt-3.5">
         <span class="font-display text-[15px] font-extrabold <%= event.free? ? 'text-success' : 'text-ink' %>">
-          <%= event_price(event.price) %>
+          <%= event.ticket_types.any? ? event_price(event.price) : "Нет билетов" %>
         </span>
 
-        <% if event.sold_out? %>
+        <% if manage %>
+          <span class="text-xs text-ink-3">
+            Продано <span class="font-semibold text-ink"><%= event.sold_count %></span> из <%= event.capacity %>
+          </span>
+        <% elsif event.sold_out? %>
           <span class="badge badge-neutral">Распродано</span>
         <% elsif event.almost_sold_out? %>
           <span class="badge badge-warning"><%= icon(:alert_circle) %>Осталось <%= ru_plural(event.seats_left, "место", "места", "мест") %></span>
         <% else %>
           <span class="flex min-w-0 items-center gap-1.5 text-xs text-ink-3">
-            <%= avatar(event.organizer, size: :sm) %>
-            <span class="truncate"><%= event.organizer %></span>
+            <%= avatar(event.organizer_name, size: :sm) %>
+            <span class="truncate"><%= event.organizer_name %></span>
           </span>
         <% end %>
       </div>

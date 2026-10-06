@@ -1,0 +1,40 @@
+<% content_for :title, "Мои события" %>
+
+<div class="container-page py-10 md:py-14">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="eyebrow">Организатор</p>
+      <h1 class="heading-1 mt-2">Мои события</h1>
+      <p class="mt-1 text-ink-3">Всё, что вы проводите, включая черновики</p>
+    </div>
+    <%= link_to new_event_path, class: "btn btn-primary" do %><%= icon(:plus) %>Создать событие<% end %>
+  </div>
+
+  <nav class="no-scrollbar -mx-4 mt-6 overflow-x-auto px-4 sm:mx-0 sm:px-0" aria-label="Фильтр событий">
+    <div class="tabs">
+      <% MyEventsController::TABS.each do |key, name| %>
+        <%= link_to my_events_path(tab: key), class: "tab #{'is-active' if key == @tab}", "aria-current": (key == @tab ? "page" : nil) do %>
+          <%= name %>
+          <span class="chip-count"><%= @counts[key] %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </nav>
+
+  <% if @events.any? %>
+    <div class="event-grid mt-6">
+      <%= render partial: "events/card", collection: @events, as: :event, locals: { manage: true } %>
+    </div>
+  <% else %>
+    <div class="mt-6 flex flex-col items-center rounded-card border-[1.5px] border-dashed border-border bg-surface px-6 py-16 text-center">
+      <span class="flex size-14 items-center justify-center rounded-full bg-brand-muted text-brand">
+        <%= icon(:calendar, css_class: "size-6") %>
+      </span>
+      <h2 class="heading-3 mt-4">
+        <%= { "upcoming" => "Нет предстоящих событий", "drafts" => "Черновиков нет", "past" => "Прошедших событий пока нет" }[@tab] %>
+      </h2>
+      <p class="mt-1 max-w-sm text-ink-3">Создайте событие — оно появится здесь, а после публикации и в каталоге.</p>
+      <%= link_to new_event_path, class: "btn btn-secondary mt-6" do %><%= icon(:plus) %>Создать событие<% end %>
+    </div>
+  <% end %>
+</div>

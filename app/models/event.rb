@@ -8,9 +8,21 @@ class Event < ApplicationRecord
     "sport"      => "Спорт"
   }.freeze
 
+  CATEGORY_ICONS = {
+    "conference" => :mic,
+    "meetup"     => :coffee,
+    "concert"    => :music,
+    "workshop"   => :wrench,
+    "exhibition" => :image,
+    "sport"      => :trophy
+  }.freeze
+
   belongs_to :organizer, class_name: "User", inverse_of: :organized_events
   has_many :ticket_types, -> { order(:price) }, dependent: :destroy, inverse_of: :event
   has_many :tickets, through: :ticket_types
+
+  accepts_nested_attributes_for :ticket_types,
+                                reject_if: ->(attrs) { attrs[:price].blank? && attrs[:quota].blank? }
 
   validates :title, presence: true, length: { maximum: 120 }
   validates :category, inclusion: { in: CATEGORIES.keys }
@@ -34,6 +46,10 @@ class Event < ApplicationRecord
 
   def category_name
     CATEGORIES.fetch(category, category)
+  end
+
+  def category_icon
+    CATEGORY_ICONS.fetch(category, :sparkles)
   end
 
   def min_price
@@ -62,6 +78,31 @@ class Event < ApplicationRecord
 
   def on_sale?
     published? && !past? && !sold_out?
+  end
+
+  def organizer_name
+    organizer&.name
+  end
+
+  def price
+    min_price.to_i
+  end
+
+  def image_url
+    nil
+  end
+
+  def sold_count
+    ticket_types.sum(&:sold_count)
+  end
+
+  def almost_sold_out?
+    ticket_types.any? && !sold_out? && seats_left <= [capacity / 10, 15].max
+  end
+
+  def related(limit = 3)
+    Event.published.upcoming.includes(:ticket_types, :organizer)
+         .where(category: category).where.not(id: id).limit(limit)
   end
 
   private

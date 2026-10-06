@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["form", "search", "clear", "hotkey", "results"]
+  static targets = ["form", "search", "clear", "hotkey", "results", "dateFrom", "dateTo"]
   static values = { debounce: { type: Number, default: 300 } }
 
   connect() {
@@ -51,6 +51,21 @@ export default class extends Controller {
     this.submit()
   }
 
+  pickPeriod() {
+    if (this.hasDateFromTarget) this.dateFromTarget.value = ""
+    if (this.hasDateToTarget) this.dateToTarget.value = ""
+  }
+
+  pickDate() {
+    const from = this.hasDateFromTarget ? this.dateFromTarget : null
+    const to = this.hasDateToTarget ? this.dateToTarget : null
+    if (from && to) to.min = from.value || from.getAttribute("min")
+    if (from?.value && to?.value && to.value < from.value) to.value = from.value
+
+    const anyPeriod = this.formTarget.querySelector("#period_all")
+    if (anyPeriod && (from?.value || to?.value)) anyPeriod.checked = true
+  }
+
   focusSearch(event) {
     const tag = event.target.tagName
     if (event.key !== "/" || ["INPUT", "TEXTAREA", "SELECT"].includes(tag) || event.target.isContentEditable) return
@@ -81,7 +96,7 @@ export default class extends Controller {
       } else if (field.tagName === "SELECT") {
         field.value = value
         if (field.selectedIndex === -1) field.selectedIndex = 0
-      } else if (field.type === "search" || field.type === "text") {
+      } else if (["search", "text", "date"].includes(field.type)) {
         field.value = value
       }
     })

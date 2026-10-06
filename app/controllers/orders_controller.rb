@@ -4,10 +4,9 @@ class OrdersController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    event = Event.find(params[:event_id])
-    authorize event, :buy?
-
-    ticket_type = event.ticket_types.find_by(id: order_params[:ticket_type_id])
+    event = find_event
+    ticket_type = event.ticket_types.find_by(id: order_params[:ticket_type_id].to_s[/\A\d+\z/]) ||
+                  event.ticket_types.find_by(name: order_params[:ticket_type_id])
     return redirect_to(event, alert: "Выберите тип билета") unless ticket_type
 
     quantity = order_params[:quantity].to_i
@@ -24,6 +23,16 @@ class OrdersController < ApplicationController
   end
 
   private
+
+  def find_event
+    if params[:demo_event_id]
+      demo = DemoEvent.find(params[:demo_event_id])
+      authorize demo, :buy?, policy_class: EventPolicy
+      demo.import!
+    else
+      Event.find(params[:event_id]).tap { |event| authorize event, :buy? }
+    end
+  end
 
   def order_params
     params.fetch(:order, {}).permit(:ticket_type_id, :quantity)

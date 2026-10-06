@@ -1,0 +1,186 @@
+<% content_for :title, @event.title %>
+<% owner = @event.is_a?(Event) && user_signed_in? && @event.organizer_id == current_user.id %>
+<% can_buy = EventPolicy.new(current_user, @event).buy? && @event.on_sale? %>
+
+<div class="container-page py-8 md:py-12">
+  <%= link_to (owner ? my_events_path : root_path(anchor: "catalog")), class: "btn btn-ghost btn-sm -ml-3 mb-4" do %>
+    <%= icon(:arrow_right, css_class: "size-4 rotate-180") %><%= owner ? "Мои события" : "Все события" %>
+  <% end %>
+
+  <% unless @event.published? %>
+    <div class="alert alert-warning mb-6">
+      <%= icon(:info) %>
+      <p>Черновик: событие видите только вы. Посетители увидят его после публикации.</p>
+    </div>
+  <% end %>
+
+  <div class="event-layout">
+    <div class="min-w-0">
+      <% if @event.image_url.present? %>
+        <%= image_tag @event.image_url, alt: "", class: "cover cover-hero" %>
+      <% else %>
+        <div class="cover cover-hero cover-placeholder cover-<%= @event.category %>">
+          <%= icon(@event.category_icon, stroke_width: 1.5, css_class: "size-24") %>
+        </div>
+      <% end %>
+
+      <div class="mt-6">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="badge"><%= @event.category_name %></span>
+          <% if @event.past? %>
+            <span class="badge badge-neutral">Прошло</span>
+          <% elsif @event.sold_out? %>
+            <span class="badge badge-neutral">Распродано</span>
+          <% elsif @event.free? %>
+            <span class="badge badge-success">Бесплатно</span>
+          <% end %>
+        </div>
+        <h1 class="heading-display mt-3"><%= @event.title %></h1>
+
+        <ul class="mt-5 space-y-2.5 text-ink-2">
+          <li class="flex items-center gap-2.5">
+            <%= icon(:calendar, css_class: "size-4 shrink-0 text-brand") %>
+            <span>
+              <time datetime="<%= @event.starts_at.iso8601 %>"><%= long_date(@event.starts_at.to_date) %>, <%= @event.starts_at.strftime("%H:%M") %></time>
+              <% if @event.ends_at %>
+                <span class="text-ink-3">— <%= @event.ends_at.to_date == @event.starts_at.to_date ? @event.ends_at.strftime("%H:%M") : event_datetime(@event.ends_at) %></span>
+              <% end %>
+            </span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <%= icon(:map_pin, css_class: "size-4 shrink-0 text-brand") %>
+            <span><%= @event.venue %> · <%= @event.city %></span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <%= avatar(@event.organizer_name, size: :sm) %>
+            <span>Организатор: <span class="font-semibold text-ink"><%= @event.organizer_name %></span></span>
+          </li>
+        </ul>
+      </div>
+
+      <section class="mt-8 border-t border-border pt-8">
+        <h2 class="heading-2">О событии</h2>
+        <% if @event.description.present? %>
+          <div class="mt-3 max-w-2xl space-y-3 text-[15px] leading-relaxed text-ink-2"><%= simple_format(@event.description, {}, wrapper_tag: "p") %></div>
+        <% else %>
+          <p class="mt-3 text-ink-3">Организатор пока не добавил описание.</p>
+        <% end %>
+      </section>
+
+      <section class="mt-8 border-t border-border pt-8">
+        <h2 class="heading-2">Место проведения</h2>
+        <div class="card mt-4 flex items-start gap-3 p-4">
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-control bg-brand-muted text-brand"><%= icon(:map_pin) %></span>
+          <div>
+            <p class="font-display font-bold text-ink"><%= @event.venue %></p>
+            <p class="text-ink-3"><%= @event.city %></p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="space-y-4 lg:sticky lg:top-24">
+      <div class="panel p-5" id="tickets">
+        <h2 class="heading-3">Билеты</h2>
+
+        <% if @my_tickets_count.to_i.positive? %>
+          <%= link_to my_tickets_path, class: "alert alert-success mt-3 hover:opacity-90" do %>
+            <%= icon(:ticket) %>
+            <span class="flex-1">У вас <%= ru_plural(@my_tickets_count, "билет", "билета", "билетов") %> на это событие</span>
+            <%= icon(:arrow_right) %>
+          <% end %>
+        <% end %>
+
+        <% if can_buy %>
+          <%= form_with url: (@event.is_a?(Event) ? event_orders_path(@event) : demo_event_orders_path(@event)), scope: :order, class: "mt-3" do |f| %>
+            <fieldset class="space-y-2">
+              <legend class="sr-only">Тип билета</legend>
+              <% first_available = @event.ticket_types.find { |type| !type.sold_out? } %>
+              <% @event.ticket_types.each do |ticket_type| %>
+                <label class="ticket-option <%= 'is-disabled' if ticket_type.sold_out? %>">
+                  <%= f.radio_button :ticket_type_id, ticket_type.id, class: "sr-only",
+                        checked: ticket_type == first_available, disabled: ticket_type.sold_out? %>
+                  <span class="ticket-option-radio" aria-hidden="true"></span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block font-display text-sm font-bold text-ink"><%= ticket_type.name %></span>
+                    <span class="block text-caption">
+                      <%= ticket_type.sold_out? ? "Распродано" : "Осталось #{ru_plural(ticket_type.available, 'место', 'места', 'мест')}" %>
+                    </span>
+                  </span>
+                  <span class="font-display font-extrabold <%= ticket_type.free? ? 'text-success' : 'text-ink' %>">
+                    <%= ticket_type.free? ? "Бесплатно" : "#{number_with_delimiter(ticket_type.price, delimiter: ' ')} ₽" %>
+                  </span>
+                </label>
+              <% end %>
+            </fieldset>
+
+            <div class="mt-4 flex items-end gap-3">
+              <div class="w-24">
+                <%= f.label :quantity, "Количество", class: "label" %>
+                <%= f.number_field :quantity, value: 1, min: 1, max: OrdersController::MAX_QUANTITY, required: true, class: "input" %>
+              </div>
+              <%= f.button type: "submit", class: "btn btn-primary btn-lg flex-1" do %>
+                <%= icon(:ticket) %>Купить
+              <% end %>
+            </div>
+            <p class="mt-2 text-caption">Онлайн-оплата пока не подключена: заказ оформляется сразу.</p>
+          <% end %>
+        <% else %>
+          <% if @event.ticket_types.any? %>
+            <ul class="mt-3 divide-y divide-border">
+              <% @event.ticket_types.each do |ticket_type| %>
+                <li class="flex items-center justify-between gap-3 py-3">
+                  <div>
+                    <p class="font-display text-sm font-bold text-ink"><%= ticket_type.name %></p>
+                    <p class="text-caption">
+                      <%= ticket_type.sold_out? ? "Распродано" : "Осталось #{ru_plural(ticket_type.available, 'место', 'места', 'мест')}" %>
+                    </p>
+                  </div>
+                  <span class="font-display font-extrabold <%= ticket_type.free? ? 'text-success' : 'text-ink' %>">
+                    <%= ticket_type.free? ? "Бесплатно" : "#{number_with_delimiter(ticket_type.price, delimiter: ' ')} ₽" %>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="mt-2 text-ink-3">Билеты пока не добавлены.</p>
+          <% end %>
+
+          <% if @event.past? %>
+            <p class="mt-4 text-ink-3">Событие уже прошло.</p>
+          <% elsif @event.sold_out? %>
+            <span class="btn btn-secondary btn-lg btn-block mt-4" aria-disabled="true">Билеты закончились</span>
+          <% elsif owner || !@event.on_sale? %>
+          <% elsif !user_signed_in? %>
+            <%= link_to new_user_session_path, class: "btn btn-primary btn-lg btn-block mt-4" do %><%= icon(:ticket) %>Войти и купить билет<% end %>
+          <% else %>
+            <p class="mt-4 text-caption">Покупать билеты могут только посетители. Чтобы проверить покупку, войдите под аккаунтом посетителя.</p>
+          <% end %>
+        <% end %>
+      </div>
+
+      <% if owner %>
+        <div class="panel p-5" id="sales">
+          <h2 class="heading-3">Продажи</h2>
+          <% percent = @event.capacity.positive? ? (@event.sold_count * 100.0 / @event.capacity).round : 0 %>
+          <p class="mt-3 font-display text-2xl font-extrabold text-ink">
+            <%= @event.sold_count %> <span class="text-base font-semibold text-ink-3">из <%= @event.capacity %></span>
+          </p>
+          <div class="mt-2 h-2 overflow-hidden rounded-full bg-canvas" role="progressbar" aria-valuenow="<%= percent %>" aria-valuemin="0" aria-valuemax="100">
+            <div class="h-full rounded-full bg-brand" style="width: <%= percent %>%"></div>
+          </div>
+          <p class="mt-2 text-caption">Продано <%= percent %>% мест</p>
+        </div>
+      <% end %>
+    </aside>
+  </div>
+
+  <% if @related.any? %>
+    <section class="mt-14">
+      <h2 class="heading-2">Похожие события</h2>
+      <div class="event-grid mt-5">
+        <%= render partial: "events/card", collection: @related, as: :event %>
+      </div>
+    </section>
+  <% end %>
+</div>
