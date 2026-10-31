@@ -3,6 +3,9 @@
 <% can_buy = EventPolicy.new(current_user, @event).buy? && @event.on_sale? %>
 
 <div class="container-page py-8 md:py-12">
+  <% if @event.is_a?(Event) %>
+    <%= turbo_stream_from @event %>
+  <% end %>
   <%= link_to (owner ? my_events_path : root_path(anchor: "catalog")), class: "btn btn-ghost btn-sm -ml-3 mb-4" do %>
     <%= icon(:arrow_right, css_class: "size-4 rotate-180") %><%= owner ? "Мои события" : "Все события" %>
   <% end %>
@@ -77,6 +80,26 @@
           </div>
         </div>
       </section>
+
+      <% if @event.is_a?(Event) %>
+        <section class="mt-8 scroll-mt-24 border-t border-border pt-8" id="discussion" data-organizer-id="<%= @event.organizer_id %>">
+          <%= turbo_stream_from @event, :comments %>
+          <h2 class="heading-2">Вопросы и комментарии <span id="comments_count" class="text-ink-4"><%= @comments.size %></span></h2>
+
+          <div id="comments" class="peer mt-5 space-y-3"><%= render partial: "comments/comment", collection: @comments, as: :comment %></div>
+          <p class="mt-5 hidden rounded-card border-[1.5px] border-dashed border-border px-5 py-6 text-center text-ink-3 peer-empty:block">
+            Пока никто ничего не спросил. Задайте первый вопрос организатору.
+          </p>
+
+          <% if user_signed_in? && CommentPolicy.new(current_user, Comment.new(event: @event)).create? %>
+            <%= render "comments/form", event: @event, comment: Comment.new %>
+          <% elsif !user_signed_in? %>
+            <p class="mt-6 text-ink-3">
+              <%= link_to "Войдите", new_user_session_path, class: "font-semibold text-brand hover:underline" %>, чтобы задать вопрос.
+            </p>
+          <% end %>
+        </section>
+      <% end %>
     </div>
 
     <aside class="space-y-4 lg:sticky lg:top-24">
@@ -103,9 +126,7 @@
                   <span class="ticket-option-radio" aria-hidden="true"></span>
                   <span class="min-w-0 flex-1">
                     <span class="block font-display text-sm font-bold text-ink"><%= ticket_type.name %></span>
-                    <span class="block text-caption">
-                      <%= ticket_type.sold_out? ? "Распродано" : "Осталось #{ru_plural(ticket_type.available, 'место', 'места', 'мест')}" %>
-                    </span>
+                    <%= render "ticket_types/availability", ticket_type: ticket_type %>
                   </span>
                   <span class="font-display font-extrabold <%= ticket_type.free? ? 'text-success' : 'text-ink' %>">
                     <%= ticket_type.free? ? "Бесплатно" : "#{number_with_delimiter(ticket_type.price, delimiter: ' ')} ₽" %>
@@ -132,9 +153,7 @@
                 <li class="flex items-center justify-between gap-3 py-3">
                   <div>
                     <p class="font-display text-sm font-bold text-ink"><%= ticket_type.name %></p>
-                    <p class="text-caption">
-                      <%= ticket_type.sold_out? ? "Распродано" : "Осталось #{ru_plural(ticket_type.available, 'место', 'места', 'мест')}" %>
-                    </p>
+                    <%= render "ticket_types/availability", ticket_type: ticket_type %>
                   </div>
                   <span class="font-display font-extrabold <%= ticket_type.free? ? 'text-success' : 'text-ink' %>">
                     <%= ticket_type.free? ? "Бесплатно" : "#{number_with_delimiter(ticket_type.price, delimiter: ' ')} ₽" %>
@@ -160,17 +179,8 @@
       </div>
 
       <% if owner %>
-        <div class="panel p-5" id="sales">
-          <h2 class="heading-3">Продажи</h2>
-          <% percent = @event.capacity.positive? ? (@event.sold_count * 100.0 / @event.capacity).round : 0 %>
-          <p class="mt-3 font-display text-2xl font-extrabold text-ink">
-            <%= @event.sold_count %> <span class="text-base font-semibold text-ink-3">из <%= @event.capacity %></span>
-          </p>
-          <div class="mt-2 h-2 overflow-hidden rounded-full bg-canvas" role="progressbar" aria-valuenow="<%= percent %>" aria-valuemin="0" aria-valuemax="100">
-            <div class="h-full rounded-full bg-brand" style="width: <%= percent %>%"></div>
-          </div>
-          <p class="mt-2 text-caption">Продано <%= percent %>% мест</p>
-        </div>
+        <%= turbo_stream_from @event, :sales %>
+        <%= render "events/sales", event: @event %>
       <% end %>
     </aside>
   </div>

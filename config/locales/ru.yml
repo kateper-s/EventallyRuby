@@ -6,6 +6,7 @@ ru:
       ticket_type: "Тип билета"
       order: "Заказ"
       ticket: "Билет"
+      comment: "Комментарий"
     attributes:
       event:
         title: "Название"
@@ -28,6 +29,9 @@ ru:
       ticket:
         code: "Код"
         price: "Цена"
+      comment:
+        body: "Текст"
+        event: "Событие"
       user:
         name: "Имя"
         email: "Email"
@@ -44,6 +48,7 @@ ru:
       after_start: "должно быть позже начала"
       below_sold: "не может быть меньше уже проданных билетов (%{count})"
       not_organizer: "нужна роль организатора"
+      not_published: "ещё не опубликовано, комментировать нельзя"
       blank: "заполните поле"
       confirmation: "не совпадает с полем «%{attribute}»"
       empty: "заполните поле"

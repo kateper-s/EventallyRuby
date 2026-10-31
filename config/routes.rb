@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   resources :events, only: %i[new create show] do
     resources :orders, only: :create
+    resources :comments, only: %i[create destroy]
   end
   resources :demo_events, only: :show, path: "demo-events" do
     resources :orders, only: :create

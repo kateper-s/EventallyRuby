@@ -1,0 +1,13 @@
+<%= form_with model: [event, comment], id: "comment_form", class: "mt-6" do |f| %>
+  <%= f.label :body, "Ваш вопрос или комментарий", class: "label" %>
+  <%= f.text_area :body, rows: 3, maxlength: Comment::MAX_LENGTH, required: true,
+        placeholder: "Например: будет ли запись докладов?",
+        class: "input #{'input-error' if comment.errors.any?}" %>
+  <% comment.errors.full_messages.each do |message| %>
+    <p class="field-error-text"><%= message %></p>
+  <% end %>
+  <div class="mt-3 flex items-center justify-between gap-3">
+    <p class="text-caption">Сообщение сразу увидят все, кто открыл эту страницу.</p>
+    <%= f.submit "Отправить", class: "btn btn-primary" %>
+  </div>
+<% end %>

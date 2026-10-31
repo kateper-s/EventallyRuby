@@ -1,0 +1,21 @@
+<article id="<%= dom_id(comment) %>" class="comment"
+         data-controller="comment" data-comment-author-value="<%= comment.user_id %>">
+  <%= avatar(comment.user.name, size: :sm) %>
+  <div class="min-w-0 flex-1">
+    <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span class="font-display text-sm font-bold text-ink"><%= comment.user.name %></span>
+      <% if comment.by_organizer? %>
+        <span class="badge">Организатор</span>
+      <% end %>
+      <time class="text-xs text-ink-3" datetime="<%= comment.created_at.iso8601 %>"><%= event_datetime(comment.created_at) %></time>
+    </p>
+    <p class="mt-1 whitespace-pre-line break-words text-[15px] leading-relaxed text-ink-2"><%= comment.body %></p>
+  </div>
+  <%= button_to event_comment_path(comment.event_id, comment), method: :delete,
+        authenticity_token: false,
+        class: "rounded-full p-1.5 text-ink-4 transition-colors hover:bg-canvas hover:text-brand",
+        "aria-label": "Удалить комментарий",
+        form: { hidden: true, class: "shrink-0", data: { comment_target: "delete", turbo_confirm: "Удалить комментарий?" } } do %>
+    <%= icon(:x) %>
+  <% end %>
+</article>

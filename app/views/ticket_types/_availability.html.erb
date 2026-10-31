@@ -1,0 +1,3 @@
+<span class="block text-caption" <% if ticket_type.is_a?(TicketType) %>id="<%= dom_id(ticket_type, :availability) %>"<% end %>>
+  <%= ticket_type.sold_out? ? "Распродано" : "Осталось #{ru_plural(ticket_type.available, 'место', 'места', 'мест')}" %>
+</span>

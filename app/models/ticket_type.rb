@@ -8,6 +8,8 @@ class TicketType < ApplicationRecord
   validates :sold_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :sold_count_within_quota
 
+  after_update_commit :broadcast_availability, if: :saved_change_to_sold_count?
+
   def available
     quota.to_i - sold_count.to_i
   end
@@ -21,6 +23,13 @@ class TicketType < ApplicationRecord
   end
 
   private
+
+  def broadcast_availability
+    broadcast_replace_to event, target: ActionView::RecordIdentifier.dom_id(self, :availability),
+                                partial: "ticket_types/availability", locals: { ticket_type: self }
+    broadcast_replace_to event, :sales, target: "sales",
+                                partial: "events/sales", locals: { event: Event.includes(:ticket_types).find(event_id) }
+  end
 
   def sold_count_within_quota
     return if quota.blank? || sold_count.blank?

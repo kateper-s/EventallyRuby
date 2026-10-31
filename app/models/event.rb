@@ -20,6 +20,7 @@ class Event < ApplicationRecord
   belongs_to :organizer, class_name: "User", inverse_of: :organized_events
   has_many :ticket_types, -> { order(:price) }, dependent: :destroy, inverse_of: :event
   has_many :tickets, through: :ticket_types
+  has_many :comments, -> { order(:created_at) }, dependent: :destroy, inverse_of: :event
 
   accepts_nested_attributes_for :ticket_types,
                                 reject_if: ->(attrs) { attrs[:price].blank? && attrs[:quota].blank? }

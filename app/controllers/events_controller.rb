@@ -5,6 +5,7 @@ class EventsController < ApplicationController
     @event = Event.includes(:organizer, :ticket_types).find(params[:id])
     authorize @event
     @related = @event.related
+    @comments = @event.comments.includes(:user)
     if user_signed_in?
       @my_tickets_count = current_user.tickets.merge(Order.paid).where(ticket_type: @event.ticket_types).count
     else

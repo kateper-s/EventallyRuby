@@ -10,9 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_06_100000) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_31_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "comments", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "created_at"], name: "index_comments_on_event_id_and_created_at"
+    t.index ["event_id"], name: "index_comments_on_event_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
+    t.check_constraint "char_length(body) >= 1 AND char_length(body) <= 1000", name: "comments_body_length"
+  end
 
   create_table "events", force: :cascade do |t|
     t.bigint "organizer_id", null: false
@@ -97,6 +109,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_06_100000) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "comments", "events"
+  add_foreign_key "comments", "users"
   add_foreign_key "events", "users", column: "organizer_id"
   add_foreign_key "favorites", "users"
   add_foreign_key "orders", "users"
