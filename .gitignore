@@ -71,3 +71,6 @@ build-iPhoneSimulator/
 /storage/*
 !/storage/.keep
 /public/assets
+
+# macOS
+.DS_Store
